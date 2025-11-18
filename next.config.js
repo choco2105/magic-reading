@@ -18,7 +18,10 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-    unoptimized: true, // Necesario para URLs dinámicas de Pollinations
+    unoptimized: true,
+  },
+  env: {
+    NEXT_PUBLIC_APP_NAME: 'Magic Reading',
   },
 }
 
