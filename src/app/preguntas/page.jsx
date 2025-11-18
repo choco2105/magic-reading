@@ -35,9 +35,9 @@ export default function PreguntasPage() {
       return;
     }
     
-    // Si ya respondió todas, mostrar resultado
+    // Si ya respondió todas, redirigir a resultado
     if (preguntasRespondidas.length === cuentoActual.preguntas?.length) {
-      finalizarCuento();
+      router.push('/resultado');
     }
   }, [usuario, cuentoActual, router]);
   
@@ -117,7 +117,12 @@ export default function PreguntasPage() {
   // Manejar cierre del modal de resultado
   const handleCerrarResultado = () => {
     limpiarCuento();
-    router.push('/');
+    // Cuando todas las preguntas están respondidas
+    if (preguntasRespondidas.length === cuentoActual.preguntas.length) {
+      router.push('/resultado');
+    } else {
+      router.push('/');
+    }
   };
   
   const porcentajeProgreso = ((preguntaActual + 1) / preguntas.length) * 100;
