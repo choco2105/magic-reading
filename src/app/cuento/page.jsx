@@ -82,10 +82,14 @@ function CuentoContent() {
       setCargando(true);
       setError(null);
       
+      // IMPORTANTE: Limpiar cuento anterior antes de generar uno nuevo
+      limpiarCuento();
+      
       const nivel = searchParams.get('nivel') || usuario?.nivelActual || 'basico';
       const tema = searchParams.get('tema') || null;
       
-      // Mostrar toast de inicio
+      console.log('🎨 Generando nuevo cuento...', { nivel, tema });
+      
       toast.loading('Generando tu cuento mágico...', { id: 'generando-cuento' });
       
       const response = await fetch('/api/generar-cuento', {
@@ -110,13 +114,16 @@ function CuentoContent() {
         throw new Error('El cuento generado no tiene el formato correcto');
       }
       
+      console.log('✅ Cuento nuevo recibido:', data.data.titulo);
+      console.log('📸 Imágenes:', data.data.imagenes?.length || 0);
+      
       setCuentoActual(data.data);
       iniciarProgreso();
       
       toast.success('¡Cuento listo! 📖✨', { id: 'generando-cuento' });
       
     } catch (error) {
-      console.error('❌ Error:', error);
+      console.error('❌ Error al generar cuento:', error);
       setError(error.message);
       toast.error('No se pudo generar el cuento', { id: 'generando-cuento' });
       generandoRef.current = false;

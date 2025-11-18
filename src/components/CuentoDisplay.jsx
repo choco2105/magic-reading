@@ -1,19 +1,28 @@
 'use client';
-// Componente para mostrar el cuento con animaciones de texto e imágenes
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedCharacter from './AnimatedCharacter';
-import Image from 'next/image';
 
 export default function CuentoDisplay({ cuento, onContinuar }) {
   const [parrafoActual, setParrafoActual] = useState(0);
   const [mostrarPersonajes, setMostrarPersonajes] = useState(true);
   const [imagenCargando, setImagenCargando] = useState(true);
   const [errorImagen, setErrorImagen] = useState(false);
+  const [cuentoId, setCuentoId] = useState(null);
   
   const parrafos = cuento?.contenido?.split('\n\n').filter(p => p.trim()) || [];
   
-  // Determinar qué imagen mostrar según el progreso
+  // Detectar cuando cambia el cuento y resetear todo
+  useEffect(() => {
+    if (cuento?.id !== cuentoId) {
+      console.log('🔄 Nuevo cuento detectado, reseteando estado...');
+      setCuentoId(cuento?.id);
+      setParrafoActual(0);
+      setImagenCargando(true);
+      setErrorImagen(false);
+    }
+  }, [cuento?.id, cuentoId]);
+  
   const getImagenActual = () => {
     if (!cuento?.imagenes || cuento.imagenes.length === 0) return null;
     
@@ -30,11 +39,12 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
   
   const imagenActual = getImagenActual();
   
-  // Reset loading cuando cambia la imagen
+  // Reset loading cuando cambia la imagen o el cuento
   useEffect(() => {
+    console.log('🖼️ Imagen cambió, reseteando loading...');
     setImagenCargando(true);
     setErrorImagen(false);
-  }, [imagenActual?.url]);
+  }, [imagenActual?.url, cuento?.id]);
   
   const siguienteParrafo = () => {
     if (parrafoActual < parrafos.length - 1) {
@@ -52,29 +62,20 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
   
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 p-4 md:p-8 overflow-hidden">
-      {/* Personajes animados */}
+      {/* Personajes */}
       <AnimatePresence>
         {mostrarPersonajes && cuento?.personajes && cuento.personajes.length > 0 && (
           <>
             {cuento.personajes[0] && (
-              <AnimatedCharacter 
-                personaje={cuento.personajes[0]} 
-                posicion="left"
-                delay={0.3}
-              />
+              <AnimatedCharacter personaje={cuento.personajes[0]} posicion="left" delay={0.3} />
             )}
             {cuento.personajes[1] && (
-              <AnimatedCharacter 
-                personaje={cuento.personajes[1]} 
-                posicion="right"
-                delay={0.6}
-              />
+              <AnimatedCharacter personaje={cuento.personajes[1]} posicion="right" delay={0.6} />
             )}
           </>
         )}
       </AnimatePresence>
       
-      {/* Contenedor principal */}
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Título */}
         <motion.div
@@ -86,27 +87,22 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
             {cuento?.titulo}
           </h1>
           <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
-            <span className="px-3 py-1 bg-white rounded-full shadow">
-              📚 {cuento?.nivel}
-            </span>
-            <span className="px-3 py-1 bg-white rounded-full shadow">
-              ⏱️ {cuento?.duracionEstimada} min
-            </span>
+            <span className="px-3 py-1 bg-white rounded-full shadow">📚 {cuento?.nivel}</span>
+            <span className="px-3 py-1 bg-white rounded-full shadow">⏱️ {cuento?.duracionEstimada} min</span>
           </div>
         </motion.div>
         
-        {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Imagen */}
           {imagenActual?.url && (
             <motion.div
-              key={`${imagenActual.momento}-${parrafoActual}`}
+              key={`imagen-${cuento?.id}-${imagenActual.momento}-${parrafoActual}`}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               className="relative aspect-video lg:aspect-square rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-purple-100 to-pink-100"
             >
-              {/* Loading spinner */}
+              {/* Loading */}
               {imagenCargando && !errorImagen && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 z-10">
                   <div className="text-center">
@@ -115,7 +111,7 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
                       <div className="absolute inset-0 border-4 border-purple-600 rounded-full border-t-transparent animate-spin"></div>
                     </div>
                     <p className="text-purple-600 font-semibold animate-pulse">
-                      Generando ilustración mágica...
+                      ✨ Creando ilustración mágica...
                     </p>
                   </div>
                 </div>
@@ -123,48 +119,40 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
               
               {!errorImagen ? (
                 <>
-                  <Image
+                  <img
+                    key={`img-${cuento?.id}-${imagenActual.momento}`}
                     src={imagenActual.url}
                     alt={imagenActual.alt || 'Ilustración del cuento'}
-                    fill
-                    className={`object-cover transition-opacity duration-300 ${imagenCargando ? 'opacity-0' : 'opacity-100'}`}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    priority
-                    unoptimized={true}
+                    className={`w-full h-full object-cover transition-opacity duration-500 ${imagenCargando ? 'opacity-0' : 'opacity-100'}`}
                     onLoad={() => {
                       console.log('✅ Imagen cargada exitosamente');
                       setImagenCargando(false);
                     }}
-                    onError={(e) => {
+                    onError={() => {
                       console.error('❌ Error al cargar imagen:', imagenActual.url);
                       setErrorImagen(true);
                       setImagenCargando(false);
                     }}
                   />
                   
-                  {/* Crédito */}
                   {!imagenCargando && imagenActual.fuente !== 'Placeholder' && (
                     <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded">
-                      <a 
-                        href={imagenActual.autorUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="hover:underline"
-                      >
-                        🎨 {imagenActual.fuente}
-                      </a>
+                      🎨 {imagenActual.fuente}
                     </div>
                   )}
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center p-8">
                   <div className="text-center">
-                    <div className="text-6xl mb-4">🎨</div>
-                    <p className="text-gray-600 font-medium mb-2">
-                      Ilustración del cuento
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {imagenActual.momento}
+                    <div className="text-7xl mb-4">
+                      {imagenActual.momento === 'inicio' && '🌟'}
+                      {imagenActual.momento === 'desarrollo' && '✨'}
+                      {imagenActual.momento === 'final' && '🎉'}
+                    </div>
+                    <p className="text-gray-600 font-medium text-lg">
+                      {imagenActual.momento === 'inicio' && 'Inicio de la aventura'}
+                      {imagenActual.momento === 'desarrollo' && 'En plena aventura'}
+                      {imagenActual.momento === 'final' && '¡Final feliz!'}
                     </p>
                   </div>
                 </div>
@@ -172,16 +160,12 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
             </motion.div>
           )}
           
-          {/* Contenido */}
-          <motion.div
-            className="bg-white rounded-3xl shadow-2xl p-6 md:p-12 min-h-[400px] relative flex flex-col"
-          >
-            {/* Indicador de progreso */}
+          {/* Texto */}
+          <motion.div className="bg-white rounded-3xl shadow-2xl p-6 md:p-12 min-h-[400px] relative flex flex-col">
             <div className="absolute top-4 right-4 text-sm text-gray-500 bg-purple-100 px-3 py-1 rounded-full font-semibold">
               {parrafoActual + 1} / {parrafos.length}
             </div>
             
-            {/* Párrafo actual */}
             <div className="flex-1 flex items-center">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -199,7 +183,6 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
               </AnimatePresence>
             </div>
             
-            {/* Botones de navegación */}
             <div className="flex justify-between items-center mt-8 pt-8 border-t border-gray-200">
               <button
                 onClick={parrafoAnterior}
@@ -236,7 +219,6 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
           </motion.div>
         </div>
         
-        {/* Botón personajes */}
         <div className="text-center">
           <button
             onClick={() => setMostrarPersonajes(!mostrarPersonajes)}

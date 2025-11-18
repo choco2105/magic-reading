@@ -66,23 +66,23 @@ export async function generarCuento(nivel, tema = null) {
  * Generar descripciones visuales para las imágenes si OpenAI no las proporciona
  */
 function generarDescripcionesDeImagenes(resultado) {
-  const personajes = resultado.personajes?.map(p => p.nombre).join(' and ') || 'characters';
-  const tema = resultado.tema || 'adventure';
+  const personajes = resultado.personajes?.map(p => p.nombre).join(' ') || 'characters';
+  const temaSimple = (resultado.tema || 'adventure').split(' ')[0];
   
   return [
     {
-      busqueda: `${personajes} beginning adventure`,
-      descripcion: `${personajes} at the start of their ${tema}, colorful illustration, children's book style, friendly atmosphere`,
+      busqueda: `${personajes} start`,
+      descripcion: `${personajes} beginning their ${temaSimple} adventure in a colorful illustrated scene`,
       momento: 'inicio'
     },
     {
-      busqueda: `${personajes} during adventure`,
-      descripcion: `${personajes} in the middle of their ${tema}, exciting scene, vibrant colors, storybook illustration`,
+      busqueda: `${personajes} adventure`,
+      descripcion: `${personajes} during exciting ${temaSimple} moment with vibrant colors`,
       momento: 'desarrollo'
     },
     {
-      busqueda: `${personajes} happy ending`,
-      descripcion: `${personajes} celebrating success at the end, joyful scene, bright colors, children's illustration`,
+      busqueda: `${personajes} happy`,
+      descripcion: `${personajes} celebrating at the end with joyful expressions`,
       momento: 'final'
     }
   ];

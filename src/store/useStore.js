@@ -40,7 +40,18 @@ const useStore = create(
         set({ cuentoActual: cuento });
       },
       
-      limpiarCuento: () => set({ cuentoActual: null, progresoActual: null }),
+      limpiarCuento: () => {
+        console.log('🧹 Limpiando cuento actual del store...');
+        set({ 
+          cuentoActual: null, 
+          progresoActual: {
+            respuestasCorrectas: 0,
+            respuestasIncorrectas: 0,
+            preguntasRespondidas: [],
+            tiempoInicio: null,
+          }
+        });
+      },
       
       // ============ PROGRESO ACTUAL ============
       progresoActual: {

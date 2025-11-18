@@ -1,10 +1,23 @@
 'use client';
 // Selector de nivel educativo con animaciones
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import Card from './ui/Card';
+import useStore from '@/store/useStore';
 import { obtenerEmojiNivel } from '@/lib/utils';
 
 export default function NivelSelector({ onSelect, nivelActual }) {
+  const router = useRouter();
+  const store = useStore();
+  
+  const handleGenerarCuento = (nivelId) => {
+    // Limpiar cuento anterior antes de navegar
+    if (typeof window !== 'undefined') {
+      store.limpiarCuento();
+    }
+    router.push(`/cuento?nivel=${nivelId}`);
+  };
+  
   const niveles = [
     {
       id: 'basico',
@@ -99,9 +112,12 @@ export default function NivelSelector({ onSelect, nivelActual }) {
             </ul>
             
             {/* Botón */}
-            <div className={`w-full py-3 rounded-lg bg-gradient-to-r ${nivel.color} text-white font-bold text-center transition-all`}>
-              Seleccionar
-            </div>
+            <button
+              onClick={() => handleGenerarCuento(nivel.id)}
+              className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl"
+            >
+              Generar cuento 📖
+            </button>
           </Card>
         </motion.div>
       ))}
