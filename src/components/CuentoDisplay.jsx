@@ -14,7 +14,9 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
   
   const audioManager = useRef(null);
   const narrator = useRef(null);
-  const parrafos = cuento?.contenido?.split('\n\n').filter(p => p.trim()) || [];
+  
+  // EXACTAMENTE 3 párrafos = 3 pantallas
+  const parrafos = cuento?.contenido?.split('\n\n').filter(p => p.trim()).slice(0, 3) || [];
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -39,18 +41,15 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
     }
   }, [cuento?.id]);
   
+  // COINCIDENCIA PERFECTA: Imagen según párrafo actual (0, 1, 2)
   const getImagenActual = () => {
     if (!cuento?.imagenes || cuento.imagenes.length === 0) return null;
     
-    const progreso = (parrafoActual + 1) / parrafos.length;
+    // Mapeo directo: párrafo 0 = inicio, párrafo 1 = desarrollo, párrafo 2 = final
+    const momentos = ['inicio', 'desarrollo', 'final'];
+    const momentoActual = momentos[parrafoActual];
     
-    if (progreso < 0.4) {
-      return cuento.imagenes.find(img => img.momento === 'inicio') || cuento.imagenes[0];
-    } else if (progreso < 0.8) {
-      return cuento.imagenes.find(img => img.momento === 'desarrollo') || cuento.imagenes[1];
-    } else {
-      return cuento.imagenes.find(img => img.momento === 'final') || cuento.imagenes[2];
-    }
+    return cuento.imagenes.find(img => img.momento === momentoActual) || cuento.imagenes[parrafoActual] || cuento.imagenes[0];
   };
   
   const imagenActual = getImagenActual();
@@ -58,7 +57,7 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
   useEffect(() => {
     setImagenCargando(true);
     setErrorImagen(false);
-  }, [imagenActual?.url]);
+  }, [imagenActual?.url, parrafoActual]); // Recargar cuando cambia imagen O párrafo
   
   const siguienteParrafo = () => {
     if (audioManager.current) {
@@ -169,13 +168,13 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
             {cuento?.titulo}
           </h1>
           
-          {/* Badges */}
+          {/* Badges - MOSTRAR PANTALLA ACTUAL */}
           <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-3 md:mb-4 px-2">
             <span className="px-3 py-1.5 md:px-4 md:py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm md:text-base font-bold">
               📚 {cuento?.nivel}
             </span>
-            <span className="px-3 py-1.5 md:px-4 md:py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-sm md:text-base font-bold">
-              📖 {parrafoActual + 1}/{parrafos.length}
+            <span className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white backdrop-blur-sm rounded-full shadow-lg text-sm md:text-base font-bold">
+              📖 Pantalla {parrafoActual + 1}/3
             </span>
           </div>
           
@@ -246,10 +245,10 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
         
         {/* Contenido - STACK EN MÓVIL, GRID EN DESKTOP */}
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 md:gap-8">
-          {/* Imagen */}
+          {/* Imagen - SINCRONIZADA CON PÁRRAFO */}
           {imagenActual?.url && (
             <motion.div
-              key={`imagen-${imagenActual.momento}-${parrafoActual}`}
+              key={`imagen-${parrafoActual}`}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ type: "spring", duration: 0.6 }}
@@ -263,7 +262,7 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
                     className="w-16 md:w-24 h-16 md:h-24 border-8 border-purple-600 border-t-transparent rounded-full"
                   />
                   <p className="text-purple-600 font-bold text-lg md:text-xl mt-4">
-                    ✨ Creando ilustración...
+                    ✨ Cargando ilustración...
                   </p>
                 </div>
               )}
@@ -288,12 +287,12 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center p-6 md:p-8">
                   <div className="text-6xl md:text-8xl mb-4">
-                    {imagenActual.momento === 'inicio' && '🌅'}
-                    {imagenActual.momento === 'desarrollo' && '✨'}
-                    {imagenActual.momento === 'final' && '🎉'}
+                    {parrafoActual === 0 && '🌅'}
+                    {parrafoActual === 1 && '✨'}
+                    {parrafoActual === 2 && '🎉'}
                   </div>
                   <p className="text-gray-600 font-bold text-xl md:text-2xl text-center">
-                    {imagenActual.momento}
+                    {['Inicio', 'Desarrollo', 'Final'][parrafoActual]}
                   </p>
                 </div>
               )}
@@ -310,7 +309,7 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
               <motion.div
                 className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
                 initial={{ width: 0 }}
-                animate={{ width: `${((parrafoActual + 1) / parrafos.length) * 100}%` }}
+                animate={{ width: `${((parrafoActual + 1) / 3) * 100}%` }}
               />
             </div>
             
@@ -328,7 +327,7 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
               </AnimatePresence>
             </div>
             
-            {/* Controles navegación - RESPONSIVE */}
+            {/* Controles navegación */}
             <div className="flex justify-between items-center pt-4 md:pt-6 border-t-2 border-gray-200 gap-2 md:gap-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -347,8 +346,8 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
                 onClick={siguienteParrafo}
                 className="flex items-center gap-1 md:gap-2 px-4 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 text-white font-bold text-sm md:text-lg shadow-lg"
               >
-                <span>{parrafoActual < parrafos.length - 1 ? 'Siguiente' : '¡Preguntas!'}</span>
-                <span className="text-lg md:text-xl">{parrafoActual < parrafos.length - 1 ? '→' : '🎯'}</span>
+                <span>{parrafoActual < 2 ? 'Siguiente' : '¡Preguntas!'}</span>
+                <span className="text-lg md:text-xl">{parrafoActual < 2 ? '→' : '🎯'}</span>
               </motion.button>
             </div>
           </motion.div>

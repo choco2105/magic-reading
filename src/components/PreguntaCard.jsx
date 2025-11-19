@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Card from './ui/Card';
 import confetti from 'canvas-confetti';
 import { getAudioManager } from '@/lib/audio';
@@ -13,6 +13,7 @@ export default function PreguntaCard({
 }) {
   const [seleccionada, setSeleccionada] = useState(null);
   const [mostrarResultado, setMostrarResultado] = useState(false);
+  const [mostrarExplicacion, setMostrarExplicacion] = useState(false);
   const audioManager = useRef(null);
   
   useEffect(() => {
@@ -58,9 +59,15 @@ export default function PreguntaCard({
       });
     }
     
+    // Mostrar explicación automáticamente después de 1 segundo
+    setTimeout(() => {
+      setMostrarExplicacion(true);
+    }, 1000);
+    
+    // Continuar después de 4 segundos (más tiempo para leer retroalimentación)
     setTimeout(() => {
       onRespuesta(esCorrecta, index);
-    }, 1500);
+    }, 4000);
   };
   
   const getColorOpcion = (index) => {
@@ -78,7 +85,7 @@ export default function PreguntaCard({
       return 'border-red-500 bg-red-50 scale-105';
     }
     
-    return 'border-gray-200 bg-gray-50';
+    return 'border-gray-200 bg-gray-50 opacity-60';
   };
   
   return (
@@ -152,18 +159,87 @@ export default function PreguntaCard({
           ))}
         </div>
         
-        {/* Explicación */}
-        {mostrarResultado && pregunta.explicacion && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mt-6 p-5 bg-blue-50 border-l-4 border-blue-500 rounded-lg"
-          >
-            <p className="text-base md:text-lg text-blue-800 font-semibold">
-              <span className="font-black">💡 Explicación:</span> {pregunta.explicacion}
-            </p>
-          </motion.div>
-        )}
+        {/* RETROALIMENTACIÓN MEJORADA */}
+        <AnimatePresence>
+          {mostrarResultado && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mt-6 overflow-hidden"
+            >
+              {/* Resultado inmediato */}
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className={`p-6 rounded-2xl ${
+                  seleccionada === pregunta.respuestaCorrecta
+                    ? 'bg-green-100 border-4 border-green-500'
+                    : 'bg-red-100 border-4 border-red-500'
+                }`}
+              >
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="text-5xl">
+                    {seleccionada === pregunta.respuestaCorrecta ? '🎉' : '😔'}
+                  </div>
+                  <div>
+                    <h4 className={`text-2xl font-black ${
+                      seleccionada === pregunta.respuestaCorrecta
+                        ? 'text-green-800'
+                        : 'text-red-800'
+                    }`}>
+                      {seleccionada === pregunta.respuestaCorrecta
+                        ? '¡Correcto! ¡Excelente trabajo!'
+                        : '¡Ups! No es la respuesta correcta'}
+                    </h4>
+                    {seleccionada !== pregunta.respuestaCorrecta && (
+                      <p className="text-red-700 font-semibold text-lg mt-1">
+                        La respuesta correcta era: <span className="font-black">{String.fromCharCode(65 + pregunta.respuestaCorrecta)}</span> - {pregunta.opciones[pregunta.respuestaCorrecta]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+              
+              {/* Explicación detallada */}
+              {mostrarExplicacion && pregunta.explicacion && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="mt-4 p-6 bg-blue-50 border-l-4 border-blue-500 rounded-xl shadow-lg"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="text-3xl">💡</div>
+                    <div className="flex-1">
+                      <h5 className="text-xl font-black text-blue-900 mb-2">
+                        ¿Por qué es correcta?
+                      </h5>
+                      <p className="text-lg text-blue-800 leading-relaxed font-medium">
+                        {pregunta.explicacion}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Mensaje de ánimo para respuestas incorrectas */}
+              {seleccionada !== pregunta.respuestaCorrecta && mostrarExplicacion && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-4 p-5 bg-yellow-50 border-2 border-yellow-400 rounded-xl text-center"
+                >
+                  <p className="text-lg font-bold text-yellow-800">
+                    💪 ¡No te preocupes! Aprender de los errores te hace más fuerte. ¡Sigue intentando!
+                  </p>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </motion.div>
   );

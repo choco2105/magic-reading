@@ -1,4 +1,4 @@
-// Sistema OpenAI FINAL
+// Sistema OpenAI OPTIMIZADO - 3 PANTALLAS EXACTAS
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -59,65 +59,91 @@ export async function generarCuentoRapido(nivel, tema = null) {
     console.log(`⚡ Generando: "${temaElegido}"`);
     console.log(`👥 Personajes: ${protagonista} y ${secundario}`);
     
+    // CONFIGURACIÓN POR NIVEL - palabras por párrafo (3 párrafos = 3 pantallas)
     const config = {
-      basico: { palabras: 140, preguntas: 3 },
-      intermedio: { palabras: 220, preguntas: 4 },
-      avanzado: { palabras: 300, preguntas: 5 }
-    }[nivel] || { palabras: 220, preguntas: 4 };
+      basico: { palabrasPorParrafo: 50, preguntas: 3 },
+      intermedio: { palabrasPorParrafo: 75, preguntas: 4 },
+      avanzado: { palabrasPorParrafo: 100, preguntas: 5 }
+    }[nivel] || { palabrasPorParrafo: 75, preguntas: 4 };
     
     const prompt = `Crea un cuento infantil en español sobre: ${temaElegido}
 
-PERSONAJES:
+PERSONAJES OBLIGATORIOS:
 - ${protagonista} (protagonista)
 - ${secundario} (amigo/mascota)
 
-LONGITUD: ${config.palabras} palabras
+⚠️ ESTRUCTURA CRÍTICA - EXACTAMENTE 3 PÁRRAFOS:
+- Párrafo 1 (INICIO): ~${config.palabrasPorParrafo} palabras - Presentación de personajes y situación inicial
+- Párrafo 2 (DESARROLLO): ~${config.palabrasPorParrafo} palabras - Desafío principal y acción
+- Párrafo 3 (FINAL): ~${config.palabrasPorParrafo} palabras - Resolución y aprendizaje
+
+IMPORTANTE: 
+- SOLO 3 párrafos, separados con \\n\\n
+- Cada párrafo debe ser una escena completa
+- NO exceder los 3 párrafos
+
 PREGUNTAS: ${config.preguntas} exactas
 
-IMPORTANTE: El contenido DEBE tener parrafos separados con doble salto de linea.
+IMÁGENES - Describir EXACTAMENTE lo que pasa en cada párrafo:
+- Imagen 1: Describe LITERALMENTE la escena del párrafo 1
+- Imagen 2: Describe LITERALMENTE la escena del párrafo 2  
+- Imagen 3: Describe LITERALMENTE la escena del párrafo 3
 
 FORMATO JSON (responde SOLO esto):
 {
   "titulo": "Titulo del cuento",
-  "contenido": "Primer parrafo aqui.\\n\\nSegundo parrafo aqui.\\n\\nTercer parrafo aqui.",
+  "contenido": "Párrafo 1 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 2 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 3 aquí (${config.palabrasPorParrafo} palabras).",
   "tema": "${temaElegido}",
   "personajes": [
-    {"nombre": "${protagonista}", "descripcion": "Nino curioso", "tipo": "protagonista", "emoji": "👦"},
-    {"nombre": "${secundario}", "descripcion": "Mascota fiel", "tipo": "secundario", "emoji": "🐶"}
+    {"nombre": "${protagonista}", "descripcion": "Niño curioso de 8 años", "tipo": "protagonista", "emoji": "👦"},
+    {"nombre": "${secundario}", "descripcion": "Mascota leal y valiente", "tipo": "secundario", "emoji": "🐶"}
   ],
   "imagenes": [
-    {"prompt": "Children illustration ${protagonista} ${secundario} beginning bright", "momento": "inicio"},
-    {"prompt": "Children illustration ${protagonista} ${secundario} exciting moment", "momento": "desarrollo"},
-    {"prompt": "Children illustration ${protagonista} ${secundario} happy ending", "momento": "final"}
+    {
+      "prompt": "Children's book illustration: ${protagonista} and ${secundario} [EXACT scene from paragraph 1], bright cheerful colors, watercolor style",
+      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 1",
+      "momento": "inicio"
+    },
+    {
+      "prompt": "Children's book illustration: ${protagonista} and ${secundario} [EXACT scene from paragraph 2], exciting moment, vibrant colors, watercolor style",
+      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 2",
+      "momento": "desarrollo"
+    },
+    {
+      "prompt": "Children's book illustration: ${protagonista} and ${secundario} [EXACT scene from paragraph 3], happy ending, warm colors, watercolor style",
+      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 3",
+      "momento": "final"
+    }
   ],
   "preguntas": [
-    {"pregunta": "Primera pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 0, "explicacion": "Porque A es correcta"},
-    {"pregunta": "Segunda pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 1, "explicacion": "Porque B es correcta"},
-    {"pregunta": "Tercera pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 2, "explicacion": "Porque C es correcta"},
-    {"pregunta": "Cuarta pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 3, "explicacion": "Porque D es correcta"}
+    {"pregunta": "¿Qué sucede en el inicio del cuento?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 0, "explicacion": "Explicación detallada con referencia al texto"},
+    {"pregunta": "¿Cuál es el desafío principal?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 1, "explicacion": "Explicación detallada con referencia al texto"},
+    {"pregunta": "¿Cómo se resuelve la situación?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 2, "explicacion": "Explicación detallada con referencia al texto"}
   ]
 }
 
-REGLAS:
-1. Genera EXACTAMENTE ${config.preguntas} preguntas
-2. Divide el contenido en 3-4 parrafos separados con \\n\\n
-3. Cada pregunta DEBE tener el campo "pregunta" con texto
-4. NO dejes campos vacios
-5. Responde SOLO JSON sin markdown`;
+REGLAS ESTRICTAS:
+1. EXACTAMENTE 3 párrafos (no más, no menos)
+2. Cada imagen debe describir LITERALMENTE lo que pasa en su párrafo correspondiente
+3. Las preguntas deben poder responderse CON el contenido del cuento
+4. Explicaciones claras que CITEN partes del cuento
+5. Genera EXACTAMENTE ${config.preguntas} preguntas
+6. Cada pregunta DEBE tener el campo "pregunta" con texto válido
+7. NO dejes campos vacíos`;
 
     const completion = await openai.chat.completions.create({
       model: MODELO,
       messages: [
         {
           role: 'system',
-          content: 'Eres escritor de cuentos infantiles en español. Respondes SOLO con JSON válido. NUNCA dejes campos vacios. Cada pregunta DEBE tener texto en el campo pregunta.'
+          content: 'Eres escritor experto de cuentos infantiles. Creas historias en EXACTAMENTE 3 párrafos, con imágenes que coinciden perfectamente con cada párrafo. Respondes SOLO con JSON válido. NUNCA dejes campos vacíos. Cada pregunta DEBE tener texto en el campo pregunta.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.85,
+      temperature: 0.8,
       max_tokens: MAX_TOKENS,
       response_format: { type: 'json_object' }
     });
@@ -125,8 +151,6 @@ REGLAS:
     const tiempo = Date.now() - timestamp;
     let contenido = completion.choices[0].message.content;
     contenido = contenido.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    
-    console.log('📄 Respuesta recibida:', contenido.substring(0, 150) + '...');
     
     let resultado;
     try {
@@ -136,42 +160,54 @@ REGLAS:
       throw new Error('JSON inválido de OpenAI');
     }
     
+    // VALIDAR ESTRUCTURA
     if (!resultado.titulo || !resultado.contenido) {
       throw new Error('Falta título o contenido');
+    }
+    
+    // VALIDAR QUE TENGA EXACTAMENTE 3 PÁRRAFOS
+    const parrafos = resultado.contenido.split('\n\n').filter(p => p.trim());
+    if (parrafos.length !== 3) {
+      console.warn(`⚠️ Se esperaban 3 párrafos, pero hay ${parrafos.length}. Ajustando...`);
+      
+      // Si hay más de 3, tomar los primeros 3
+      if (parrafos.length > 3) {
+        resultado.contenido = parrafos.slice(0, 3).join('\n\n');
+      }
+      // Si hay menos de 3, es un error crítico
+      else {
+        throw new Error(`Cuento inválido: solo tiene ${parrafos.length} párrafos`);
+      }
     }
     
     if (!Array.isArray(resultado.preguntas) || resultado.preguntas.length < config.preguntas) {
       throw new Error(`Faltan preguntas: ${resultado.preguntas?.length || 0} de ${config.preguntas}`);
     }
     
-    // Validar cada pregunta SIN lanzar error, solo corregir
+    // VALIDAR Y CORREGIR PREGUNTAS
     for (let i = 0; i < resultado.preguntas.length; i++) {
       const p = resultado.preguntas[i];
       
-      // Si falta pregunta, usar las opciones
       if (!p.pregunta || p.pregunta.trim() === '') {
         if (Array.isArray(p.opciones) && p.opciones.length > 0) {
-          p.pregunta = p.opciones[0]; // Usar primera opción como pregunta
-          p.opciones = ['Sí', 'No', 'Tal vez', 'No sé']; // Opciones genéricas
+          p.pregunta = `¿${p.opciones[0]}?`;
+          p.opciones = ['Sí', 'No', 'Tal vez', 'No sé'];
         } else {
           p.pregunta = `Pregunta ${i + 1} sobre el cuento`;
           p.opciones = ['Opción A', 'Opción B', 'Opción C', 'Opción D'];
         }
       }
       
-      // Asegurar opciones válidas
       if (!Array.isArray(p.opciones) || p.opciones.length !== 4) {
         p.opciones = ['Opción A', 'Opción B', 'Opción C', 'Opción D'];
       }
       
-      // Asegurar respuesta correcta válida
       if (typeof p.respuestaCorrecta !== 'number' || p.respuestaCorrecta < 0 || p.respuestaCorrecta > 3) {
         p.respuestaCorrecta = 0;
       }
       
-      // Asegurar explicación
       if (!p.explicacion || p.explicacion.trim() === '') {
-        p.explicacion = 'Esta es la respuesta correcta.';
+        p.explicacion = 'Esta es la respuesta correcta según el cuento.';
       }
     }
     
@@ -187,6 +223,7 @@ REGLAS:
     
     console.log(`✅ Cuento generado en ${tiempo}ms`);
     console.log(`📖 "${resultado.titulo}"`);
+    console.log(`📄 ${parrafos.length} párrafos (3 pantallas)`);
     console.log(`🎭 ${resultado.personajes.map(p => p.nombre).join(', ')}`);
     console.log(`❓ ${resultado.preguntas.length} preguntas`);
     
@@ -195,11 +232,12 @@ REGLAS:
       data: {
         ...resultado,
         nivel,
-        duracionEstimada: Math.ceil(resultado.contenido.split(' ').length / 150),
+        duracionEstimada: 3, // 3 pantallas
         metadata: {
           modelo: MODELO,
           tokens: completion.usage.total_tokens,
-          tiempoGeneracion: tiempo
+          tiempoGeneracion: tiempo,
+          parrafos: parrafos.length
         }
       }
     };
