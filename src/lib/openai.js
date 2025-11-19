@@ -5,7 +5,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const MODELO = 'gpt-4o-mini';
+const MODELO = 'gpt-5-nano';
 const MAX_TOKENS = 2500;
 
 const NOMBRES_BANCO = {
