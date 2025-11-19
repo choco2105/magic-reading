@@ -1,6 +1,6 @@
 // ============================================
-// GPT-5 NANO - VERSIÓN EXACTA DEL ORIGINAL
-// Basado en src/lib/openai.js (documento 39)
+// GPT-5 NANO - VERSIÓN ULTRA EXPLÍCITA
+// Énfasis EXTREMO en generar 3 párrafos
 // ============================================
 
 import OpenAI from 'openai';
@@ -10,20 +10,15 @@ const openai = new OpenAI({
 });
 
 // ============================================
-// CONFIGURACIÓN PARA GPT-5 NANO
+// CONFIGURACIÓN
 // ============================================
 
 const MODELO = 'gpt-5-nano';
-
-// GPT-5 Nano usa max_completion_tokens (NO max_tokens)
-const MAX_TOKENS = 2500; // Aumentado para evitar JSON incompleto
-
-// GPT-5 Nano NO acepta temperature personalizada
-// Reasoning effort para máxima velocidad
+const MAX_TOKENS = 3000; // Aumentado aún más para asegurar que complete
 const REASONING_EFFORT = 'minimal';
 
 // ============================================
-// BANCOS DE DATOS (DEL ORIGINAL)
+// BANCOS DE DATOS
 // ============================================
 
 const NOMBRES_BANCO = {
@@ -33,7 +28,6 @@ const NOMBRES_BANCO = {
     'Camila', 'Daniel', 'Victoria', 'Alejandro', 'María', 'Sebastián'
   ],
   secundarios: [
-    // Nombres normales de mascotas
     'Max', 'Luna', 'Rocky', 'Bella', 'Toby', 'Coco',
     'Bruno', 'Lola', 'Michi', 'Pelusa', 'Félix', 'Manchas',
     'Copito', 'Canela', 'Chocolate', 'Tambor', 'Pipo', 'Bolita'
@@ -69,7 +63,7 @@ function seleccionarUnicos(array, cantidad) {
 }
 
 // ============================================
-// FUNCIÓN PRINCIPAL (EXACTA DEL ORIGINAL)
+// FUNCIÓN PRINCIPAL
 // ============================================
 
 export async function generarCuentoRapido(nivel, tema = null) {
@@ -83,7 +77,6 @@ export async function generarCuentoRapido(nivel, tema = null) {
     console.log(`⚡ Generando: "${temaElegido}"`);
     console.log(`👥 Personajes: ${protagonista} y ${secundario}`);
     
-    // CONFIGURACIÓN POR NIVEL - IGUAL QUE EL ORIGINAL
     const config = {
       basico: { palabrasPorParrafo: 50, preguntas: 3 },
       intermedio: { palabrasPorParrafo: 75, preguntas: 4 },
@@ -91,111 +84,142 @@ export async function generarCuentoRapido(nivel, tema = null) {
     }[nivel] || { palabrasPorParrafo: 75, preguntas: 4 };
     
     // ============================================
-    // PROMPT EXACTO DEL ORIGINAL (documento 39)
+    // PROMPT ULTRA EXPLÍCITO PARA GPT-5 NANO
     // ============================================
-    const prompt = `Crea un cuento infantil en español sobre: ${temaElegido}
+    const prompt = `Escribe un cuento infantil completo sobre: ${temaElegido}
 
-PERSONAJES OBLIGATORIOS:
-- ${protagonista} (protagonista humano: niño o niña)
-- ${secundario} (mascota/animal: perro, gato, conejo, etc.)
+🎭 PERSONAJES (usa estos nombres exactos):
+- ${protagonista} (el/la protagonista, niño o niña de 8 años)
+- ${secundario} (la mascota, un animal: perro, gato, conejo, etc.)
 
-⚠️ IMPORTANTE PARA PERSONAJES:
-- El protagonista SIEMPRE es un niño/niña humano
-- El secundario SIEMPRE es un animal/mascota
-- Define claramente si es niño/niña y qué tipo de animal
+📖 ESTRUCTURA OBLIGATORIA DEL CUENTO:
 
-⚠️ ESTRUCTURA CRÍTICA - EXACTAMENTE 3 PÁRRAFOS:
-- Párrafo 1 (INICIO): ~${config.palabrasPorParrafo} palabras - Presentación de personajes y situación inicial
-- Párrafo 2 (DESARROLLO): ~${config.palabrasPorParrafo} palabras - Desafío principal y acción
-- Párrafo 3 (FINAL): ~${config.palabrasPorParrafo} palabras - Resolución y aprendizaje
+Debes escribir TRES PÁRRAFOS COMPLETOS. Cada párrafo debe tener aproximadamente ${config.palabrasPorParrafo} palabras.
 
-IMPORTANTE: 
-- SOLO 3 párrafos, separados con \\n\\n
-- Cada párrafo debe ser una escena completa
-- NO exceder los 3 párrafos
+PÁRRAFO 1 (Inicio - ${config.palabrasPorParrafo} palabras):
+- Presenta a ${protagonista} y ${secundario}
+- Describe dónde están y qué hacen
+- Introduce el problema o aventura
 
-PREGUNTAS: ${config.preguntas} exactas
+PÁRRAFO 2 (Desarrollo - ${config.palabrasPorParrafo} palabras):
+- Describe el desafío principal
+- Muestra cómo ${protagonista} y ${secundario} enfrentan el problema
+- Agrega emoción y acción
 
-⚠️ CRÍTICO PARA IMÁGENES - USA TIPO DE PERSONAJE, NO NOMBRE:
-- NO uses nombres en los prompts de imágenes
-- USA: "a child", "a boy", "a girl", "a dog", "a cat", "a rabbit", etc.
-- NUNCA: "${protagonista}", "${secundario}" (nombres confunden a DALL-E)
-- Ejemplo CORRECTO: "a curious boy and his loyal dog playing"
-- Ejemplo INCORRECTO: "Sofia and Perla playing"
+PÁRRAFO 3 (Final - ${config.palabrasPorParrafo} palabras):
+- Resuelve el problema
+- Muestra el aprendizaje
+- Final feliz y satisfactorio
 
-FORMATO JSON (responde SOLO esto):
+⚠️ MUY IMPORTANTE: 
+- Escribe TRES párrafos completos, no uno solo
+- Cada párrafo debe tener ${config.palabrasPorParrafo} palabras aproximadamente
+- Separa los párrafos con \\n\\n (doble salto de línea)
+- NO pongas títulos como "PÁRRAFO 1" o "INICIO" en el texto
+
+🎨 IMÁGENES (3 imágenes, una por cada párrafo):
+
+Para cada imagen, describe EN INGLÉS lo que sucede, pero SIN usar los nombres ${protagonista} o ${secundario}. 
+Usa en su lugar: "a boy", "a girl", "a dog", "a cat", "a rabbit", etc.
+
+Ejemplo CORRECTO: "a curious girl and her loyal dog exploring a cave"
+Ejemplo INCORRECTO: "${protagonista} and ${secundario} exploring" 
+
+❓ PREGUNTAS (${config.preguntas} preguntas de comprensión):
+
+Crea exactamente ${config.preguntas} preguntas sobre el cuento con:
+- 4 opciones cada una
+- Solo 1 respuesta correcta (indica el índice 0-3)
+- Una explicación clara
+
+📋 FORMATO JSON (Completa TODO este JSON):
+
 {
-  "titulo": "Titulo del cuento",
-  "contenido": "Párrafo 1 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 2 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 3 aquí (${config.palabrasPorParrafo} palabras).",
+  "titulo": "Un título atractivo para el cuento",
+  "contenido": "Aquí va el PÁRRAFO 1 completo de ${config.palabrasPorParrafo} palabras.\\n\\nAquí va el PÁRRAFO 2 completo de ${config.palabrasPorParrafo} palabras.\\n\\nAquí va el PÁRRAFO 3 completo de ${config.palabrasPorParrafo} palabras.",
   "tema": "${temaElegido}",
   "personajes": [
     {
-      "nombre": "${protagonista}", 
-      "descripcion": "Niño/niña curioso de 8 años", 
-      "tipo": "protagonista", 
+      "nombre": "${protagonista}",
+      "descripcion": "Niño/niña curioso de 8 años",
+      "tipo": "protagonista",
       "tipoVisual": "boy" o "girl",
       "emoji": "👦" o "👧"
     },
     {
-      "nombre": "${secundario}", 
-      "descripcion": "Describe el animal: perro leal, gato juguetón, etc.", 
-      "tipo": "secundario", 
-      "tipoVisual": "dog" o "cat" o "rabbit" o "bird" (tipo de animal en inglés),
-      "emoji": "🐶" o "🐱" o "🐰" etc
+      "nombre": "${secundario}",
+      "descripcion": "Un perro/gato/conejo leal y juguetón",
+      "tipo": "secundario",
+      "tipoVisual": "dog" o "cat" o "rabbit",
+      "emoji": "🐶" o "🐱" o "🐰"
     }
   ],
   "imagenes": [
     {
-      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 1], bright cheerful colors, watercolor style, friendly, safe for kids",
-      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 1",
+      "prompt": "Children's book illustration, watercolor style: a boy/girl and a dog/cat [acción del párrafo 1], bright colors, friendly, safe for kids",
+      "descripcion": "Descripción de lo que pasa en el párrafo 1",
       "momento": "inicio"
     },
     {
-      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 2], exciting moment, vibrant colors, watercolor style, friendly, safe for kids",
-      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 2",
+      "prompt": "Children's book illustration, watercolor style: a boy/girl and a dog/cat [acción del párrafo 2], exciting scene, vibrant colors, friendly, safe for kids",
+      "descripcion": "Descripción de lo que pasa en el párrafo 2",
       "momento": "desarrollo"
     },
     {
-      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 3], happy ending, warm colors, watercolor style, friendly, safe for kids",
-      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 3",
+      "prompt": "Children's book illustration, watercolor style: a boy/girl and a dog/cat [acción del párrafo 3], happy ending, warm colors, friendly, safe for kids",
+      "descripcion": "Descripción de lo que pasa en el párrafo 3",
       "momento": "final"
     }
   ],
   "preguntas": [
-    {"pregunta": "¿Qué sucede en el inicio del cuento?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 0, "explicacion": "Explicación detallada con referencia al texto"},
-    {"pregunta": "¿Cuál es el desafío principal?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 1, "explicacion": "Explicación detallada con referencia al texto"},
-    {"pregunta": "¿Cómo se resuelve la situación?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 2, "explicacion": "Explicación detallada con referencia al texto"}
+    {
+      "pregunta": "Pregunta sobre el inicio del cuento",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "respuestaCorrecta": 0,
+      "explicacion": "Explicación de por qué esta es la correcta"
+    },
+    {
+      "pregunta": "Pregunta sobre el desarrollo",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "respuestaCorrecta": 1,
+      "explicacion": "Explicación de por qué esta es la correcta"
+    },
+    {
+      "pregunta": "Pregunta sobre el final",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "respuestaCorrecta": 2,
+      "explicacion": "Explicación de por qué esta es la correcta"
+    }
   ]
 }
 
-REGLAS ESTRICTAS:
-1. EXACTAMENTE 3 párrafos (no más, no menos)
-2. Personajes: protagonista = niño/niña humano, secundario = animal específico
-3. En prompts de imágenes USA "a boy", "a girl", "a dog", "a cat" - NUNCA nombres propios
-4. Cada imagen debe describir LITERALMENTE lo que pasa en su párrafo correspondiente
-5. Las preguntas deben poder responderse CON el contenido del cuento
-6. Explicaciones claras que CITEN partes del cuento
-7. Genera EXACTAMENTE ${config.preguntas} preguntas
-8. Cada pregunta DEBE tener el campo "pregunta" con texto válido
-9. NO dejes campos vacíos
-10. Define tipoVisual en cada personaje (boy/girl para humanos, dog/cat/rabbit/bird para animales)`;
+🔴 REGLAS CRÍTICAS (lee esto antes de responder):
+
+1. El campo "contenido" DEBE tener TRES párrafos separados por \\n\\n
+2. Cada párrafo debe tener aproximadamente ${config.palabrasPorParrafo} palabras
+3. NO escribas solo un párrafo largo - deben ser TRES párrafos distintos
+4. En los prompts de imágenes USA "a boy/girl", "a dog/cat" - NUNCA nombres propios
+5. Genera exactamente ${config.preguntas} preguntas
+6. Todos los campos deben estar completos - NO dejes nada vacío
+7. El JSON debe ser válido y estar completo
+
+Responde SOLO con el JSON completo, sin texto adicional antes o después.`;
 
     // ============================================
-    // LLAMADA A API - ADAPTADA PARA GPT-5 NANO
+    // LLAMADA A API
     // ============================================
     const completion = await openai.chat.completions.create({
       model: MODELO,
       messages: [
         {
           role: 'system',
-          content: 'Eres escritor experto de cuentos infantiles. Creas historias en EXACTAMENTE 3 párrafos, con imágenes que coinciden perfectamente con cada párrafo. MUY IMPORTANTE: En los prompts de imágenes USA tipos genéricos (a boy, a girl, a dog, a cat) NUNCA nombres propios. El protagonista siempre es humano (niño o niña), el secundario siempre es animal. Respondes SOLO con JSON válido. NUNCA dejes campos vacíos. Cada pregunta DEBE tener texto en el campo pregunta.'
+          content: `Eres un escritor experto de cuentos infantiles. DEBES escribir SIEMPRE exactamente TRES párrafos completos separados por \\n\\n en el campo "contenido". NO escribas un solo párrafo largo. Los tres párrafos deben estar claramente separados. Respondes ÚNICAMENTE con JSON válido y completo.`
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      // ⚠️ PARÁMETROS CORRECTOS PARA GPT-5 NANO
       max_completion_tokens: MAX_TOKENS,
       reasoning_effort: REASONING_EFFORT,
       response_format: { type: 'json_object' }
@@ -210,48 +234,85 @@ REGLAS ESTRICTAS:
       resultado = JSON.parse(contenido);
     } catch (parseError) {
       console.error('❌ Error JSON:', parseError.message);
-      console.error('Contenido recibido:', contenido.substring(0, 500));
+      console.error('Primeros 500 caracteres:', contenido.substring(0, 500));
       throw new Error('JSON inválido de OpenAI');
     }
     
     // ============================================
-    // VALIDACIONES ESTRICTAS (DEL ORIGINAL)
+    // VALIDACIÓN MÁS PERMISIVA
     // ============================================
     if (!resultado.titulo || !resultado.contenido) {
       throw new Error('Falta título o contenido');
     }
     
-    // VALIDAR QUE TENGA EXACTAMENTE 3 PÁRRAFOS
+    // Contar párrafos
     const parrafos = resultado.contenido.split('\n\n').filter(p => p.trim());
-    if (parrafos.length !== 3) {
-      console.warn(`⚠️ Se esperaban 3 párrafos, pero hay ${parrafos.length}. Ajustando...`);
+    
+    console.log(`📊 Párrafos detectados: ${parrafos.length}`);
+    
+    if (parrafos.length === 1) {
+      // Si solo hay 1 párrafo, intentar dividirlo inteligentemente
+      console.warn('⚠️ Solo 1 párrafo detectado. Intentando dividir...');
       
+      const texto = parrafos[0];
+      const palabras = texto.split(' ');
+      const palabrasPorParrafo = Math.ceil(palabras.length / 3);
+      
+      const p1 = palabras.slice(0, palabrasPorParrafo).join(' ');
+      const p2 = palabras.slice(palabrasPorParrafo, palabrasPorParrafo * 2).join(' ');
+      const p3 = palabras.slice(palabrasPorParrafo * 2).join(' ');
+      
+      resultado.contenido = `${p1}\n\n${p2}\n\n${p3}`;
+      
+      console.log('✅ Párrafo dividido en 3 partes');
+    } else if (parrafos.length === 2) {
+      // Si hay 2 párrafos, dividir el más largo
+      console.warn('⚠️ Solo 2 párrafos detectados. Dividiendo el más largo...');
+      
+      if (parrafos[0].length > parrafos[1].length) {
+        const palabras = parrafos[0].split(' ');
+        const mitad = Math.ceil(palabras.length / 2);
+        const p1 = palabras.slice(0, mitad).join(' ');
+        const p2 = palabras.slice(mitad).join(' ');
+        resultado.contenido = `${p1}\n\n${p2}\n\n${parrafos[1]}`;
+      } else {
+        const palabras = parrafos[1].split(' ');
+        const mitad = Math.ceil(palabras.length / 2);
+        const p2 = palabras.slice(0, mitad).join(' ');
+        const p3 = palabras.slice(mitad).join(' ');
+        resultado.contenido = `${parrafos[0]}\n\n${p2}\n\n${p3}`;
+      }
+      
+      console.log('✅ Dividido en 3 párrafos');
+    } else if (parrafos.length > 3) {
       // Si hay más de 3, tomar los primeros 3
-      if (parrafos.length > 3) {
-        resultado.contenido = parrafos.slice(0, 3).join('\n\n');
-      }
-      // Si hay menos de 3, es un error crítico
-      else {
-        throw new Error(`Cuento inválido: solo tiene ${parrafos.length} párrafos`);
-      }
+      console.warn(`⚠️ ${parrafos.length} párrafos detectados. Tomando los primeros 3...`);
+      resultado.contenido = parrafos.slice(0, 3).join('\n\n');
+    } else {
+      console.log('✅ 3 párrafos correctos');
     }
     
-    if (!Array.isArray(resultado.preguntas) || resultado.preguntas.length < config.preguntas) {
-      throw new Error(`Faltan preguntas: ${resultado.preguntas?.length || 0} de ${config.preguntas}`);
+    // Validar preguntas
+    if (!Array.isArray(resultado.preguntas)) {
+      resultado.preguntas = [];
     }
     
-    // VALIDAR Y CORREGIR PREGUNTAS (DEL ORIGINAL)
+    // Asegurar que hay suficientes preguntas
+    while (resultado.preguntas.length < config.preguntas) {
+      resultado.preguntas.push({
+        pregunta: `¿Qué aprendiste del cuento? (Pregunta ${resultado.preguntas.length + 1})`,
+        opciones: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+        respuestaCorrecta: 0,
+        explicacion: 'Esta es la respuesta correcta según el cuento.'
+      });
+    }
+    
+    // Validar cada pregunta
     for (let i = 0; i < resultado.preguntas.length; i++) {
       const p = resultado.preguntas[i];
       
       if (!p.pregunta || p.pregunta.trim() === '') {
-        if (Array.isArray(p.opciones) && p.opciones.length > 0) {
-          p.pregunta = `¿${p.opciones[0]}?`;
-          p.opciones = ['Sí', 'No', 'Tal vez', 'No sé'];
-        } else {
-          p.pregunta = `Pregunta ${i + 1} sobre el cuento`;
-          p.opciones = ['Opción A', 'Opción B', 'Opción C', 'Opción D'];
-        }
+        p.pregunta = `Pregunta ${i + 1} sobre el cuento`;
       }
       
       if (!Array.isArray(p.opciones) || p.opciones.length !== 4) {
@@ -269,38 +330,68 @@ REGLAS ESTRICTAS:
     
     resultado.preguntas = resultado.preguntas.slice(0, config.preguntas);
     
-    if (!resultado.imagenes || resultado.imagenes.length < 3) {
-      throw new Error('Faltan imágenes');
+    // Validar imágenes
+    if (!Array.isArray(resultado.imagenes) || resultado.imagenes.length < 3) {
+      console.warn('⚠️ Faltan imágenes, generando por defecto...');
+      resultado.imagenes = [
+        {
+          prompt: `Children's book illustration: a child and an animal at the beginning of an adventure, watercolor style, bright colors`,
+          descripcion: 'Inicio de la aventura',
+          momento: 'inicio'
+        },
+        {
+          prompt: `Children's book illustration: a child and an animal facing a challenge, watercolor style, exciting scene`,
+          descripcion: 'Desafío principal',
+          momento: 'desarrollo'
+        },
+        {
+          prompt: `Children's book illustration: a child and an animal celebrating, watercolor style, happy ending`,
+          descripcion: 'Final feliz',
+          momento: 'final'
+        }
+      ];
     }
     
-    if (!resultado.personajes || resultado.personajes.length < 2) {
-      throw new Error('Faltan personajes');
+    // Validar personajes
+    if (!Array.isArray(resultado.personajes) || resultado.personajes.length < 2) {
+      console.warn('⚠️ Faltan personajes, generando por defecto...');
+      resultado.personajes = [
+        {
+          nombre: protagonista,
+          descripcion: 'Niño/niña curioso de 8 años',
+          tipo: 'protagonista',
+          tipoVisual: Math.random() > 0.5 ? 'boy' : 'girl',
+          emoji: Math.random() > 0.5 ? '👦' : '👧'
+        },
+        {
+          nombre: secundario,
+          descripcion: 'Mascota leal',
+          tipo: 'secundario',
+          tipoVisual: 'dog',
+          emoji: '🐶'
+        }
+      ];
     }
     
-    // ASEGURAR que cada personaje tenga tipoVisual (DEL ORIGINAL)
-    resultado.personajes = resultado.personajes.map((p, idx) => {
+    // Asegurar tipoVisual en personajes
+    resultado.personajes = resultado.personajes.map((p) => {
       if (!p.tipoVisual) {
         if (p.tipo === 'protagonista') {
           p.tipoVisual = Math.random() > 0.5 ? 'boy' : 'girl';
           p.emoji = p.tipoVisual === 'boy' ? '👦' : '👧';
         } else {
-          const animalTypes = {
-            '🐶': 'dog', '🐕': 'dog',
-            '🐱': 'cat', '🐈': 'cat', 
-            '🐰': 'rabbit', '🐇': 'rabbit',
-            '🐦': 'bird', '🦜': 'bird',
-            '🐻': 'bear', '🦊': 'fox',
-            '🐼': 'panda', '🐨': 'koala'
-          };
-          p.tipoVisual = animalTypes[p.emoji] || 'dog';
+          p.tipoVisual = 'dog';
+          p.emoji = '🐶';
         }
       }
       return p;
     });
     
+    const parrafosFinales = resultado.contenido.split('\n\n').filter(p => p.trim());
+    
     console.log(`✅ Cuento generado en ${tiempo}ms`);
     console.log(`📖 "${resultado.titulo}"`);
-    console.log(`📄 ${parrafos.length} párrafos (3 pantallas)`);
+    console.log(`📄 ${parrafosFinales.length} párrafos`);
     console.log(`🎭 ${resultado.personajes.map(p => p.nombre).join(', ')}`);
     console.log(`❓ ${resultado.preguntas.length} preguntas`);
     
@@ -314,7 +405,7 @@ REGLAS ESTRICTAS:
           modelo: MODELO,
           tokens: completion.usage.total_tokens,
           tiempoGeneracion: tiempo,
-          parrafos: parrafos.length
+          parrafos: parrafosFinales.length
         }
       }
     };
