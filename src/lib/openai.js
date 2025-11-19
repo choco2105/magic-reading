@@ -1,12 +1,31 @@
-// Sistema OpenAI OPTIMIZADO - 3 PANTALLAS EXACTAS
+// ============================================
+// GPT-5 NANO - CONFIGURACIÓN CORRECTA
+// ============================================
+
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// ============================================
+// CONFIGURACIÓN OPTIMIZADA PARA GPT-5 NANO
+// ============================================
+
 const MODELO = 'gpt-5-nano';
-const MAX_TOKENS = 6000;
+
+// GPT-5 Nano usa max_completion_tokens en vez de max_tokens
+const MAX_COMPLETION_TOKENS = 1500;
+
+// Temperature optimizada
+const TEMPERATURE = 0.7;
+
+// Reasoning effort para máxima velocidad
+const REASONING_EFFORT = 'minimal';
+
+// ============================================
+// BANCOS DE DATOS
+// ============================================
 
 const NOMBRES_BANCO = {
   protagonistas: [
@@ -48,6 +67,10 @@ function seleccionarUnicos(array, cantidad) {
   return seleccionados;
 }
 
+// ============================================
+// FUNCIÓN PRINCIPAL CON GPT-5 NANO
+// ============================================
+
 export async function generarCuentoRapido(nivel, tema = null) {
   try {
     const timestamp = Date.now();
@@ -56,117 +79,73 @@ export async function generarCuentoRapido(nivel, tema = null) {
     const secundario = seleccionarUnicos(NOMBRES_BANCO.secundarios, 1)[0];
     const temaElegido = tema || TEMAS_ESPECIFICOS[Math.floor(Math.random() * TEMAS_ESPECIFICOS.length)];
     
-    console.log(`⚡ Generando: "${temaElegido}"`);
+    console.log(`⚡ Generando con GPT-5 NANO: "${temaElegido}"`);
     console.log(`👥 Personajes: ${protagonista} y ${secundario}`);
     
-    // CONFIGURACIÓN POR NIVEL - palabras por párrafo (3 párrafos = 3 pantallas)
     const config = {
-      basico: { palabrasPorParrafo: 50, preguntas: 3 },
-      intermedio: { palabrasPorParrafo: 75, preguntas: 4 },
-      avanzado: { palabrasPorParrafo: 100, preguntas: 5 }
-    }[nivel] || { palabrasPorParrafo: 75, preguntas: 4 };
+      basico: { palabrasPorParrafo: 40, preguntas: 3 },
+      intermedio: { palabrasPorParrafo: 60, preguntas: 4 },
+      avanzado: { palabrasPorParrafo: 80, preguntas: 5 }
+    }[nivel] || { palabrasPorParrafo: 60, preguntas: 4 };
     
-    const prompt = `Crea un cuento infantil en español sobre: ${temaElegido}
+    const prompt = `Cuento infantil: ${temaElegido}
 
-PERSONAJES OBLIGATORIOS:
-- ${protagonista} (protagonista humano: niño o niña)
-- ${secundario} (mascota/animal: perro, gato, conejo, etc.)
+PERSONAJES: ${protagonista} (niño/niña), ${secundario} (animal)
 
-⚠️ IMPORTANTE PARA PERSONAJES:
-- El protagonista SIEMPRE es un niño/niña humano
-- El secundario SIEMPRE es un animal/mascota
-- Define claramente si es niño/niña y qué tipo de animal
+ESTRUCTURA (3 párrafos, ${config.palabrasPorParrafo} palabras c/u):
+1. INICIO: Presentación
+2. DESARROLLO: Desafío  
+3. FINAL: Resolución
 
-⚠️ ESTRUCTURA CRÍTICA - EXACTAMENTE 3 PÁRRAFOS:
-- Párrafo 1 (INICIO): ~${config.palabrasPorParrafo} palabras - Presentación de personajes y situación inicial
-- Párrafo 2 (DESARROLLO): ~${config.palabrasPorParrafo} palabras - Desafío principal y acción
-- Párrafo 3 (FINAL): ~${config.palabrasPorParrafo} palabras - Resolución y aprendizaje
+IMÁGENES (en inglés, sin nombres):
+- inicio: "a boy/girl and a dog/cat [acción]"
+- desarrollo: "a boy/girl and a dog/cat [acción]" 
+- final: "a boy/girl and a dog/cat [acción]"
 
-IMPORTANTE: 
-- SOLO 3 párrafos, separados con \\n\\n
-- Cada párrafo debe ser una escena completa
-- NO exceder los 3 párrafos
+PREGUNTAS: ${config.preguntas} con explicaciones breves
 
-PREGUNTAS: ${config.preguntas} exactas
-
-⚠️ CRÍTICO PARA IMÁGENES - USA TIPO DE PERSONAJE, NO NOMBRE:
-- NO uses nombres en los prompts de imágenes
-- USA: "a child", "a boy", "a girl", "a dog", "a cat", "a rabbit", etc.
-- NUNCA: "${protagonista}", "${secundario}" (nombres confunden a DALL-E)
-- Ejemplo CORRECTO: "a curious boy and his loyal dog playing"
-- Ejemplo INCORRECTO: "Sofia and Perla playing"
-
-FORMATO JSON (responde SOLO esto):
+JSON:
 {
-  "titulo": "Titulo del cuento",
-  "contenido": "Párrafo 1 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 2 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 3 aquí (${config.palabrasPorParrafo} palabras).",
+  "titulo": "...",
+  "contenido": "párrafo1\\n\\npárrafo2\\n\\npárrafo3",
   "tema": "${temaElegido}",
   "personajes": [
-    {
-      "nombre": "${protagonista}", 
-      "descripcion": "Niño/niña curioso de 8 años", 
-      "tipo": "protagonista", 
-      "tipoVisual": "boy" o "girl",
-      "emoji": "👦" o "👧"
-    },
-    {
-      "nombre": "${secundario}", 
-      "descripcion": "Describe el animal: perro leal, gato juguetón, etc.", 
-      "tipo": "secundario", 
-      "tipoVisual": "dog" o "cat" o "rabbit" o "bird" (tipo de animal en inglés),
-      "emoji": "🐶" o "🐱" o "🐰" etc
-    }
+    {"nombre": "${protagonista}", "descripcion": "...", "tipo": "protagonista", "tipoVisual": "boy/girl", "emoji": "👦/👧"},
+    {"nombre": "${secundario}", "descripcion": "...", "tipo": "secundario", "tipoVisual": "dog/cat/etc", "emoji": "🐶/🐱/etc"}
   ],
   "imagenes": [
-    {
-      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 1], bright cheerful colors, watercolor style, friendly, safe for kids",
-      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 1",
-      "momento": "inicio"
-    },
-    {
-      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 2], exciting moment, vibrant colors, watercolor style, friendly, safe for kids",
-      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 2",
-      "momento": "desarrollo"
-    },
-    {
-      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 3], happy ending, warm colors, watercolor style, friendly, safe for kids",
-      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 3",
-      "momento": "final"
-    }
+    {"prompt": "children's illustration: a [tipo] and a [tipo] [acción], watercolor", "descripcion": "...", "momento": "inicio"},
+    {"prompt": "children's illustration: a [tipo] and a [tipo] [acción], watercolor", "descripcion": "...", "momento": "desarrollo"},
+    {"prompt": "children's illustration: a [tipo] and a [tipo] [acción], watercolor", "descripcion": "...", "momento": "final"}
   ],
   "preguntas": [
-    {"pregunta": "¿Qué sucede en el inicio del cuento?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 0, "explicacion": "Explicación detallada con referencia al texto"},
-    {"pregunta": "¿Cuál es el desafío principal?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 1, "explicacion": "Explicación detallada con referencia al texto"},
-    {"pregunta": "¿Cómo se resuelve la situación?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 2, "explicacion": "Explicación detallada con referencia al texto"}
+    {"pregunta": "...", "opciones": ["A","B","C","D"], "respuestaCorrecta": 0, "explicacion": "..."}
   ]
-}
+}`;
 
-REGLAS ESTRICTAS:
-1. EXACTAMENTE 3 párrafos (no más, no menos)
-2. Personajes: protagonista = niño/niña humano, secundario = animal específico
-3. En prompts de imágenes USA "a boy", "a girl", "a dog", "a cat" - NUNCA nombres propios
-4. Cada imagen debe describir LITERALMENTE lo que pasa en su párrafo correspondiente
-5. Las preguntas deben poder responderse CON el contenido del cuento
-6. Explicaciones claras que CITEN partes del cuento
-7. Genera EXACTAMENTE ${config.preguntas} preguntas
-8. Cada pregunta DEBE tener el campo "pregunta" con texto válido
-9. NO dejes campos vacíos
-10. Define tipoVisual en cada personaje (boy/girl para humanos, dog/cat/rabbit/bird para animales)`;
-
+    // ============================================
+    // LLAMADA A GPT-5 NANO CON PARÁMETROS CORRECTOS
+    // ============================================
     const completion = await openai.chat.completions.create({
       model: MODELO,
       messages: [
         {
           role: 'system',
-          content: 'Eres escritor experto de cuentos infantiles. Creas historias en EXACTAMENTE 3 párrafos, con imágenes que coinciden perfectamente con cada párrafo. MUY IMPORTANTE: En los prompts de imágenes USA tipos genéricos (a boy, a girl, a dog, a cat) NUNCA nombres propios. El protagonista siempre es humano (niño o niña), el secundario siempre es animal. Respondes SOLO con JSON válido. NUNCA dejes campos vacíos. Cada pregunta DEBE tener texto en el campo pregunta.'
+          content: 'Escritor infantil. 3 párrafos exactos. Personajes: humano + animal. Imágenes en inglés sin nombres. JSON válido.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.8,
-      max_tokens: MAX_TOKENS,
+      temperature: TEMPERATURE,
+      
+      // ⚠️ CRÍTICO: GPT-5 usa max_completion_tokens, NO max_tokens
+      max_completion_tokens: MAX_COMPLETION_TOKENS,
+      
+      // Parámetro especial de GPT-5 Nano para máxima velocidad
+      reasoning_effort: REASONING_EFFORT,
+      
       response_format: { type: 'json_object' }
     });
     
@@ -182,23 +161,20 @@ REGLAS ESTRICTAS:
       throw new Error('JSON inválido de OpenAI');
     }
     
-    // VALIDAR ESTRUCTURA
+    // ============================================
+    // VALIDACIÓN Y CORRECCIÓN
+    // ============================================
     if (!resultado.titulo || !resultado.contenido) {
       throw new Error('Falta título o contenido');
     }
     
-    // VALIDAR QUE TENGA EXACTAMENTE 3 PÁRRAFOS
     const parrafos = resultado.contenido.split('\n\n').filter(p => p.trim());
     if (parrafos.length !== 3) {
-      console.warn(`⚠️ Se esperaban 3 párrafos, pero hay ${parrafos.length}. Ajustando...`);
-      
-      // Si hay más de 3, tomar los primeros 3
+      console.warn(`⚠️ Ajustando párrafos: ${parrafos.length} -> 3`);
       if (parrafos.length > 3) {
         resultado.contenido = parrafos.slice(0, 3).join('\n\n');
-      }
-      // Si hay menos de 3, es un error crítico
-      else {
-        throw new Error(`Cuento inválido: solo tiene ${parrafos.length} párrafos`);
+      } else {
+        throw new Error(`Cuento inválido: solo ${parrafos.length} párrafos`);
       }
     }
     
@@ -206,7 +182,7 @@ REGLAS ESTRICTAS:
       throw new Error(`Faltan preguntas: ${resultado.preguntas?.length || 0} de ${config.preguntas}`);
     }
     
-    // VALIDAR Y CORREGIR PREGUNTAS
+    // Validar y corregir preguntas
     for (let i = 0; i < resultado.preguntas.length; i++) {
       const p = resultado.preguntas[i];
       
@@ -243,15 +219,13 @@ REGLAS ESTRICTAS:
       throw new Error('Faltan personajes');
     }
     
-    // ASEGURAR que cada personaje tenga tipoVisual
+    // Asegurar tipoVisual
     resultado.personajes = resultado.personajes.map((p, idx) => {
       if (!p.tipoVisual) {
-        // Si no tiene tipoVisual, inferirlo del tipo
         if (p.tipo === 'protagonista') {
           p.tipoVisual = Math.random() > 0.5 ? 'boy' : 'girl';
           p.emoji = p.tipoVisual === 'boy' ? '👦' : '👧';
         } else {
-          // Para secundarios, usar emoji para inferir tipo de animal
           const animalTypes = {
             '🐶': 'dog', '🐕': 'dog',
             '🐱': 'cat', '🐈': 'cat', 
@@ -266,23 +240,42 @@ REGLAS ESTRICTAS:
       return p;
     });
     
-    console.log(`✅ Cuento generado en ${tiempo}ms`);
+    // ============================================
+    // MÉTRICAS Y AHORRO
+    // ============================================
+    const tokensUsados = completion.usage.total_tokens;
+    const costoInput = (completion.usage.prompt_tokens / 1000000) * 0.050;
+    const costoOutput = (completion.usage.completion_tokens / 1000000) * 0.400;
+    const costoTotal = costoInput + costoOutput;
+    
+    // Calcular ahorro vs gpt-4o-mini
+    const costoMiniInput = (completion.usage.prompt_tokens / 1000000) * 0.150;
+    const costoMiniOutput = (completion.usage.completion_tokens / 1000000) * 0.600;
+    const costoMiniTotal = costoMiniInput + costoMiniOutput;
+    const ahorro = ((costoMiniTotal - costoTotal) / costoMiniTotal * 100).toFixed(1);
+    
+    console.log(`✅ Cuento generado con GPT-5 NANO en ${tiempo}ms`);
     console.log(`📖 "${resultado.titulo}"`);
-    console.log(`📄 ${parrafos.length} párrafos (3 pantallas)`);
+    console.log(`📄 ${parrafos.length} párrafos`);
     console.log(`🎭 ${resultado.personajes.map(p => p.nombre).join(', ')}`);
     console.log(`❓ ${resultado.preguntas.length} preguntas`);
+    console.log(`📊 Tokens: ${tokensUsados} (${completion.usage.prompt_tokens} in + ${completion.usage.completion_tokens} out)`);
+    console.log(`💰 Costo: $${costoTotal.toFixed(6)}`);
+    console.log(`🎉 AHORRO: ${ahorro}% vs gpt-4o-mini`);
     
     return {
       success: true,
       data: {
         ...resultado,
         nivel,
-        duracionEstimada: 3, // 3 pantallas
+        duracionEstimada: 3,
         metadata: {
           modelo: MODELO,
-          tokens: completion.usage.total_tokens,
+          tokens: tokensUsados,
           tiempoGeneracion: tiempo,
-          parrafos: parrafos.length
+          parrafos: parrafos.length,
+          costoGeneracion: costoTotal,
+          ahorroVsMini: ahorro + '%'
         }
       }
     };
