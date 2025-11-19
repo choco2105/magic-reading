@@ -6,7 +6,7 @@ const openai = new OpenAI({
 });
 
 const MODELO = 'gpt-5-nano';
-const MAX_TOKENS = 2500;
+const MAX_TOKENS = 6000;
 
 const NOMBRES_BANCO = {
   protagonistas: [
