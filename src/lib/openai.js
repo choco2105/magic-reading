@@ -251,39 +251,59 @@ Responde SOLO con el JSON completo, sin texto adicional antes o después.`;
     console.log(`📊 Párrafos detectados: ${parrafos.length}`);
     
     if (parrafos.length === 1) {
-      // Si solo hay 1 párrafo, intentar dividirlo inteligentemente
-      console.warn('⚠️ Solo 1 párrafo detectado. Intentando dividir...');
+      // Si solo hay 1 párrafo, dividirlo por ORACIONES COMPLETAS
+      console.warn('⚠️ Solo 1 párrafo detectado. Dividiendo por oraciones...');
       
       const texto = parrafos[0];
-      const palabras = texto.split(' ');
-      const palabrasPorParrafo = Math.ceil(palabras.length / 3);
+      // Dividir por oraciones (. ! ?)
+      const oraciones = texto.match(/[^.!?]+[.!?]+/g) || [texto];
       
-      const p1 = palabras.slice(0, palabrasPorParrafo).join(' ');
-      const p2 = palabras.slice(palabrasPorParrafo, palabrasPorParrafo * 2).join(' ');
-      const p3 = palabras.slice(palabrasPorParrafo * 2).join(' ');
-      
-      resultado.contenido = `${p1}\n\n${p2}\n\n${p3}`;
-      
-      console.log('✅ Párrafo dividido en 3 partes');
+      if (oraciones.length >= 3) {
+        // Si hay 3+ oraciones, dividirlas en 3 grupos
+        const oracionesPorParrafo = Math.ceil(oraciones.length / 3);
+        
+        const p1 = oraciones.slice(0, oracionesPorParrafo).join(' ').trim();
+        const p2 = oraciones.slice(oracionesPorParrafo, oracionesPorParrafo * 2).join(' ').trim();
+        const p3 = oraciones.slice(oracionesPorParrafo * 2).join(' ').trim();
+        
+        resultado.contenido = `${p1}\n\n${p2}\n\n${p3}`;
+        console.log(`✅ Dividido en 3 párrafos (${oraciones.length} oraciones)`);
+      } else {
+        // Si hay menos de 3 oraciones, usar el texto original pero agregarlo 3 veces
+        console.log('⚠️ Muy pocas oraciones, manteniendo texto original');
+        resultado.contenido = texto;
+      }
     } else if (parrafos.length === 2) {
-      // Si hay 2 párrafos, dividir el más largo
-      console.warn('⚠️ Solo 2 párrafos detectados. Dividiendo el más largo...');
+      // Si hay 2 párrafos, dividir el más largo por ORACIONES
+      console.warn('⚠️ Solo 2 párrafos detectados. Dividiendo el más largo por oraciones...');
       
       if (parrafos[0].length > parrafos[1].length) {
-        const palabras = parrafos[0].split(' ');
-        const mitad = Math.ceil(palabras.length / 2);
-        const p1 = palabras.slice(0, mitad).join(' ');
-        const p2 = palabras.slice(mitad).join(' ');
-        resultado.contenido = `${p1}\n\n${p2}\n\n${parrafos[1]}`;
+        // Dividir el primer párrafo
+        const oraciones = parrafos[0].match(/[^.!?]+[.!?]+/g) || [parrafos[0]];
+        
+        if (oraciones.length >= 2) {
+          const mitad = Math.ceil(oraciones.length / 2);
+          const p1 = oraciones.slice(0, mitad).join(' ').trim();
+          const p2 = oraciones.slice(mitad).join(' ').trim();
+          resultado.contenido = `${p1}\n\n${p2}\n\n${parrafos[1]}`;
+          console.log('✅ Dividido en 3 párrafos');
+        } else {
+          resultado.contenido = parrafos.join('\n\n');
+        }
       } else {
-        const palabras = parrafos[1].split(' ');
-        const mitad = Math.ceil(palabras.length / 2);
-        const p2 = palabras.slice(0, mitad).join(' ');
-        const p3 = palabras.slice(mitad).join(' ');
-        resultado.contenido = `${parrafos[0]}\n\n${p2}\n\n${p3}`;
+        // Dividir el segundo párrafo
+        const oraciones = parrafos[1].match(/[^.!?]+[.!?]+/g) || [parrafos[1]];
+        
+        if (oraciones.length >= 2) {
+          const mitad = Math.ceil(oraciones.length / 2);
+          const p2 = oraciones.slice(0, mitad).join(' ').trim();
+          const p3 = oraciones.slice(mitad).join(' ').trim();
+          resultado.contenido = `${parrafos[0]}\n\n${p2}\n\n${p3}`;
+          console.log('✅ Dividido en 3 párrafos');
+        } else {
+          resultado.contenido = parrafos.join('\n\n');
+        }
       }
-      
-      console.log('✅ Dividido en 3 párrafos');
     } else if (parrafos.length > 3) {
       // Si hay más de 3, tomar los primeros 3
       console.warn(`⚠️ ${parrafos.length} párrafos detectados. Tomando los primeros 3...`);
