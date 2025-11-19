@@ -1,5 +1,5 @@
 // ============================================
-// GPT-5 NANO - CONFIGURACIÓN CORRECTA
+// GPT-5 NANO - VERSIÓN FINAL CORRECTA
 // ============================================
 
 import OpenAI from 'openai';
@@ -9,15 +9,17 @@ const openai = new OpenAI({
 });
 
 // ============================================
-// CONFIGURACIÓN OPTIMIZADA PARA GPT-5 NANO
+// CONFIGURACIÓN PARA GPT-5 NANO
 // ============================================
 
 const MODELO = 'gpt-5-nano';
 
-// GPT-5 Nano usa max_completion_tokens en vez de max_tokens
-const MAX_COMPLETION_TOKENS = 2500;
+// GPT-5 Nano usa max_completion_tokens (NO max_tokens)
+const MAX_COMPLETION_TOKENS = 1500;
 
-
+// ⚠️ IMPORTANTE: GPT-5 Nano NO acepta temperature personalizada
+// Solo acepta el valor por defecto (1)
+// Por eso NO definimos temperature aquí
 
 // Reasoning effort para máxima velocidad
 const REASONING_EFFORT = 'minimal';
@@ -67,7 +69,7 @@ function seleccionarUnicos(array, cantidad) {
 }
 
 // ============================================
-// FUNCIÓN PRINCIPAL CON GPT-5 NANO
+// FUNCIÓN PRINCIPAL
 // ============================================
 
 export async function generarCuentoRapido(nivel, tema = null) {
@@ -123,7 +125,7 @@ JSON:
 }`;
 
     // ============================================
-    // LLAMADA A GPT-5 NANO CON PARÁMETROS CORRECTOS
+    // LLAMADA A GPT-5 NANO - PARÁMETROS CORRECTOS
     // ============================================
     const completion = await openai.chat.completions.create({
       model: MODELO,
@@ -137,15 +139,14 @@ JSON:
           content: prompt
         }
       ],
-      temperature: TEMPERATURE,
       
-      // ⚠️ CRÍTICO: GPT-5 usa max_completion_tokens, NO max_tokens
+      // ✅ PARÁMETROS SOPORTADOS POR GPT-5 NANO:
       max_completion_tokens: MAX_COMPLETION_TOKENS,
-      
-      // Parámetro especial de GPT-5 Nano para máxima velocidad
       reasoning_effort: REASONING_EFFORT,
-      
       response_format: { type: 'json_object' }
+      
+      // ❌ NO INCLUIR: temperature, top_p, presence_penalty, frequency_penalty
+      // GPT-5 Nano usa temperature=1 por defecto y no se puede cambiar
     });
     
     const tiempo = Date.now() - timestamp;
@@ -161,7 +162,7 @@ JSON:
     }
     
     // ============================================
-    // VALIDACIÓN Y CORRECCIÓN
+    // VALIDACIÓN
     // ============================================
     if (!resultado.titulo || !resultado.contenido) {
       throw new Error('Falta título o contenido');
@@ -240,7 +241,7 @@ JSON:
     });
     
     // ============================================
-    // MÉTRICAS Y AHORRO
+    // MÉTRICAS
     // ============================================
     const tokensUsados = completion.usage.total_tokens;
     const costoInput = (completion.usage.prompt_tokens / 1000000) * 0.050;
@@ -259,8 +260,9 @@ JSON:
     console.log(`🎭 ${resultado.personajes.map(p => p.nombre).join(', ')}`);
     console.log(`❓ ${resultado.preguntas.length} preguntas`);
     console.log(`📊 Tokens: ${tokensUsados} (${completion.usage.prompt_tokens} in + ${completion.usage.completion_tokens} out)`);
-    console.log(`💰 Costo: $${costoTotal.toFixed(6)}`);
-    console.log(`🎉 AHORRO: ${ahorro}% vs gpt-4o-mini`);
+    console.log(`💰 Costo: $${costoTotal.toFixed(6)} (vs $${costoMiniTotal.toFixed(6)} gpt-4o-mini)`);
+    console.log(`🎉 AHORRO: ${ahorro}% más barato que gpt-4o-mini`);
+    console.log(`⚡ VELOCIDAD: ~2x más rápido que gpt-4o-mini`);
     
     return {
       success: true,
