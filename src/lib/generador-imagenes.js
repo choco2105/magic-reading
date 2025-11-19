@@ -1,114 +1,257 @@
-// Servicio simplificado para generar imágenes con IA
+// 🎨 GENERADOR DE IMÁGENES CON DALL-E 3 (OpenAI)
+// Usas la misma API key que ya tienes para GPT
+
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // La misma que ya tienes
+});
 
 /**
- * Generar imagen usando el API endpoint (más confiable)
+ * Generar imagen con DALL-E 3
+ * Costo: $0.040 por imagen de 1024x1024
+ * Calidad: EXCELENTE para cuentos infantiles
  */
-async function generarImagenLocal(prompt, momento, index) {
+export async function generarConDALLE3(prompt, size = '1024x1024', quality = 'standard') {
   try {
-    console.log(`🎨 Generando imagen ${index + 1}: "${prompt.substring(0, 50)}..."`);
+    console.log('🎨 Generando con DALL-E 3...');
     
-    // Simplificar el prompt drásticamente
-    const palabrasClave = prompt
-      .split(' ')
-      .filter(p => p.length > 3)
-      .slice(0, 10)
-      .join(' ');
+    // Mejorar prompt para niños
+    const promptMejorado = `Children's storybook illustration, friendly cartoon style, colorful and vibrant, safe for kids, high quality: ${prompt}`;
     
-    const promptSimple = `children book ${palabrasClave} colorful illustration`;
-    const seed = 1000 + index;
-    
-    // Construir URL más simple
-    const params = new URLSearchParams({
-      prompt: promptSimple,
-      width: '800',
-      height: '600',
-      seed: seed.toString(),
-      nologo: 'true'
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: promptMejorado,
+      n: 1,
+      size: size, // '1024x1024', '1024x1792', '1792x1024'
+      quality: quality, // 'standard' ($0.040) o 'hd' ($0.080)
+      style: 'vivid' // 'vivid' (más creativo) o 'natural'
     });
     
-    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptSimple)}?${params}`;
+    const imageUrl = response.data[0].url;
     
-    console.log(`   ✅ URL generada`);
+    console.log('✅ Imagen DALL-E generada');
     
     return {
-      url: url,
-      urlSmall: url,
-      urlThumb: url,
-      alt: prompt,
-      autor: 'IA Generativa',
-      autorUrl: '#',
-      fuente: 'Pollinations',
+      url: imageUrl,
+      provider: 'DALL-E 3',
+      model: 'dall-e-3',
       tipo: 'generada',
-      momento: momento
+      costo: quality === 'hd' ? 0.080 : 0.040
     };
     
   } catch (error) {
-    console.error(`   ❌ Error: ${error.message}`);
-    return generarPlaceholder(prompt, momento, index);
+    console.error('❌ Error con DALL-E:', error.message);
+    
+    // Fallback a Pollinations si falla
+    return generarFallback(prompt);
   }
 }
 
 /**
- * Placeholder mejorado con emojis según el tema
+ * Generar imagen con DALL-E 2 (más barato)
+ * Costo: $0.020 por imagen de 1024x1024
+ * Calidad: BUENA (menos detallada que DALL-E 3)
  */
-function generarPlaceholder(prompt, momento, index) {
-  const configs = {
-    inicio: { emoji: '🌟', bg: '8b5cf6', nombre: 'Inicio' },
-    desarrollo: { emoji: '✨', bg: '3b82f6', nombre: 'Aventura' },
-    final: { emoji: '🎉', bg: '10b981', nombre: 'Final' }
-  };
-  
-  const config = configs[momento] || configs.inicio;
+export async function generarConDALLE2(prompt, size = '1024x1024') {
+  try {
+    console.log('🎨 Generando con DALL-E 2...');
+    
+    const promptMejorado = `Children's book illustration, cartoon style, colorful: ${prompt}`;
+    
+    const response = await openai.images.generate({
+      model: "dall-e-2",
+      prompt: promptMejorado.substring(0, 1000), // DALL-E 2 límite 1000 chars
+      n: 1,
+      size: size // '256x256', '512x512', '1024x1024'
+    });
+    
+    console.log('✅ Imagen DALL-E 2 generada');
+    
+    return {
+      url: response.data[0].url,
+      provider: 'DALL-E 2',
+      model: 'dall-e-2',
+      tipo: 'generada',
+      costo: 0.020
+    };
+    
+  } catch (error) {
+    console.error('❌ Error con DALL-E 2:', error);
+    return generarFallback(prompt);
+  }
+}
+
+/**
+ * Fallback gratuito si DALL-E falla
+ */
+function generarFallback(prompt) {
+  const seed = prompt.length + Date.now();
+  const promptSimple = prompt.split(' ').slice(0, 10).join(' ');
   
   return {
-    url: `https://placehold.co/800x600/${config.bg}/ffffff?text=${config.emoji}+${config.nombre}&font=roboto`,
-    urlSmall: `https://placehold.co/400x300/${config.bg}/ffffff?text=${config.emoji}&font=roboto`,
-    urlThumb: `https://placehold.co/200x150/${config.bg}/ffffff?text=${config.emoji}&font=roboto`,
-    alt: prompt,
-    autor: 'Magic Reading',
-    autorUrl: '#',
-    fuente: 'Placeholder',
-    tipo: 'placeholder',
-    momento: momento
+    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(promptSimple)}?width=1024&height=768&seed=${seed}&nologo=true`,
+    provider: 'Pollinations (Fallback)',
+    tipo: 'fallback',
+    costo: 0
   };
 }
 
 /**
- * Generar MÚLTIPLES imágenes
+ * ESTRATEGIA HÍBRIDA: DALL-E + Pollinations
+ * - Imagen principal (inicio): DALL-E 3 (alta calidad)
+ * - Imágenes secundarias: Pollinations (gratis)
+ * - Final: SVG personalizado
+ * 
+ * Costo total: ~$0.04 por cuento (solo 1 imagen DALL-E)
  */
-export async function generarImagenes(imagenesArray) {
-  console.log(`\n${'='.repeat(70)}`);
-  console.log(`🎨 GENERANDO ${imagenesArray.length} ILUSTRACIONES`);
-  console.log(`${'='.repeat(70)}`);
-  
+export async function generarImagenesHibridas(imagenesArray, personajes = []) {
   const imagenes = [];
   
   for (let i = 0; i < imagenesArray.length; i++) {
     const item = imagenesArray[i];
+    let imagen;
     
-    // Usar descripción o busqueda, lo que esté disponible
-    const prompt = item.descripcion || item.busqueda || `scene ${i + 1}`;
-    
-    const imagen = await generarImagenLocal(prompt, item.momento, i);
-    imagenes.push(imagen);
-    
-    // Pausa entre generaciones
-    if (i < imagenesArray.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 300));
+    if (i === 0 && item.momento === 'inicio') {
+      // Primera imagen: DALL-E 3 (mejor calidad)
+      imagen = await generarConDALLE3(item.descripcion, '1024x1024', 'standard');
+      
+    } else if (item.momento === 'final') {
+      // Última imagen: SVG personalizado (gratis)
+      imagen = generarSVGCelebracion(item.descripcion, personajes);
+      
+    } else {
+      // Resto: Pollinations (gratis)
+      const seed = 1000 + i;
+      imagen = {
+        url: `https://image.pollinations.ai/prompt/${encodeURIComponent(item.descripcion)}?width=1024&height=768&seed=${seed}&nologo=true&model=flux`,
+        provider: 'Pollinations',
+        tipo: 'generada',
+        costo: 0
+      };
     }
+    
+    imagenes.push({
+      ...imagen,
+      alt: item.descripcion,
+      momento: item.momento
+    });
   }
   
-  const generadas = imagenes.filter(img => img.tipo === 'generada').length;
-  
-  console.log(`\n✅ ${generadas}/${imagenesArray.length} imágenes generadas`);
-  console.log(`${'='.repeat(70)}\n`);
+  const costoTotal = imagenes.reduce((sum, img) => sum + (img.costo || 0), 0);
+  console.log(`💰 Costo total imágenes: $${costoTotal.toFixed(3)}`);
   
   return imagenes;
 }
 
 /**
- * Generar una sola imagen
+ * ESTRATEGIA TODO GRATIS: Solo Pollinations + SVG
+ * Costo: $0
  */
-export async function generarImagen(prompt, momento = 'inicio', index = 0) {
-  return generarImagenLocal(prompt, momento, index);
+export async function generarImagenesGratis(imagenesArray, personajes = []) {
+  const imagenes = [];
+  
+  for (let i = 0; i < imagenesArray.length; i++) {
+    const item = imagenesArray[i];
+    const seed = 1000 + i;
+    
+    let imagen;
+    
+    if (item.momento === 'final') {
+      // Final: SVG personalizado
+      imagen = generarSVGCelebracion(item.descripcion, personajes);
+    } else {
+      // Resto: Pollinations mejorado
+      const promptMejorado = `children's book illustration, cute style, ${item.descripcion}`;
+      imagen = {
+        url: `https://image.pollinations.ai/prompt/${encodeURIComponent(promptMejorado)}?width=1024&height=768&seed=${seed}&nologo=true&enhance=true&model=flux`,
+        provider: 'Pollinations AI',
+        tipo: 'generada',
+        costo: 0
+      };
+    }
+    
+    imagenes.push({
+      ...imagen,
+      alt: item.descripcion,
+      momento: item.momento
+    });
+  }
+  
+  console.log('✅ Todas las imágenes generadas GRATIS');
+  return imagenes;
 }
+
+/**
+ * SVG Celebración personalizado
+ */
+function generarSVGCelebracion(titulo, personajes) {
+  const personajesTexto = personajes.map(p => p.nombre).join(' & ');
+  
+  const svg = `
+<svg width="1024" height="768" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad-final" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="1024" height="768" fill="url(#grad-final)"/>
+  
+  <!-- Estrellas decorativas -->
+  <text x="100" y="100" font-size="60" filter="url(#glow)">⭐</text>
+  <text x="900" y="150" font-size="50" filter="url(#glow)">✨</text>
+  <text x="150" y="650" font-size="55" filter="url(#glow)">💫</text>
+  <text x="850" y="700" font-size="50" filter="url(#glow)">🌟</text>
+  
+  <!-- Emoji principal -->
+  <text x="512" y="300" font-size="200" text-anchor="middle" filter="url(#glow)">🎉</text>
+  
+  <!-- Texto -->
+  <text x="512" y="430" font-size="48" font-weight="bold" text-anchor="middle" fill="white" filter="url(#glow)">¡Final Feliz!</text>
+  <text x="512" y="500" font-size="32" text-anchor="middle" fill="white" opacity="0.9">${personajesTexto}</text>
+  
+  <!-- Confeti -->
+  <circle cx="200" cy="200" r="8" fill="#ff6b6b"/>
+  <circle cx="824" cy="250" r="6" fill="#4ecdc4"/>
+  <circle cx="300" cy="500" r="7" fill="#ffe66d"/>
+  <circle cx="724" cy="500" r="9" fill="#a8e6cf"/>
+</svg>
+  `.trim();
+  
+  return {
+    url: `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`,
+    provider: 'SVG Personalizado',
+    tipo: 'svg',
+    costo: 0
+  };
+}
+
+/**
+ * CONFIGURACIÓN RECOMENDADA
+ */
+export const ESTRATEGIAS = {
+  // Mejor calidad (costo: ~$0.04/cuento)
+  premium: generarImagenesHibridas,
+  
+  // 100% gratis
+  gratis: generarImagenesGratis,
+  
+  // Solo DALL-E (costo: ~$0.12/cuento)
+  dalle_solo: async (imagenesArray) => {
+    return Promise.all(
+      imagenesArray.map(item => generarConDALLE3(item.descripcion))
+    );
+  }
+};
+
+// Exportar estrategia por defecto
+export default ESTRATEGIAS.gratis; // Cambia a 'premium' si quieres usar DALL-E

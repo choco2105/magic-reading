@@ -133,3 +133,71 @@ input[type="number"] {
     opacity: 0;
   }
 }
+/* ========================================
+   MEJORAS PARA NIÑOS
+   ======================================== */
+
+/* Texto más grande en móvil */
+@media (max-width: 640px) {
+  .prose p {
+    @apply text-xl leading-loose;
+  }
+  
+  button {
+    @apply min-h-[48px] text-base;
+  }
+}
+
+/* Botones touch-friendly */
+.btn-touch {
+  @apply min-h-[44px] min-w-[44px] p-3 md:p-4;
+  touch-action: manipulation;
+}
+
+/* Animaciones más suaves */
+* {
+  @apply transition-all duration-300;
+}
+
+/* Desactivar animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mejoras de accesibilidad */
+button:focus-visible,
+a:focus-visible {
+  @apply outline-4 outline-offset-2 outline-purple-500;
+}
+
+/* Alto contraste para texto */
+.texto-legible {
+  color: #1a1a1a;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Cursor de puntero en elementos interactivos */
+button,
+a,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Loading states más bonitos */
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}

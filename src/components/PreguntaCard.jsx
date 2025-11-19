@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Card from './ui/Card';
+import confetti from 'canvas-confetti';
 
 export default function PreguntaCard({ 
   pregunta, 
@@ -34,6 +35,15 @@ export default function PreguntaCard({
     
     // Notificar al componente padre
     const esCorrecta = index === pregunta.respuestaCorrecta;
+    
+    // Confetti si la respuesta es correcta
+    if (esCorrecta) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
     
     // Esperar 1.5 segundos antes de avanzar
     setTimeout(() => {

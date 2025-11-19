@@ -1,112 +1,202 @@
-export function obtenerPromptPorNivel(nivel, tema = null) {
-  const temasDefault = [
-    'aventura en el bosque',
-    'amistad entre animales',
-    'exploración espacial',
-    'viaje al fondo del mar',
-    'magia y fantasía',
-    'inventos científicos',
-    'culturas del mundo',
-    'protección del medio ambiente'
-  ];
+// Prompts OPTIMIZADOS para cuentos únicos y diversos
+
+/**
+ * Temas diversos y específicos
+ */
+const TEMAS_ESPECIFICOS = [
+  // Naturaleza y animales
+  'expedición en la selva amazónica',
+  'aventura en un arrecife de coral',
+  'migración de mariposas monarca',
+  'rescate de animales marinos',
   
-  const temaSeleccionado = tema || temasDefault[Math.floor(Math.random() * temasDefault.length)];
+  // Ciencia y tecnología
+  'construir un robot ayudante',
+  'viaje al centro de un volcán',
+  'experimento de ciencias divertido',
+  'misión a la estación espacial',
   
-  const basePrompt = `Crea un cuento educativo sobre: "${temaSeleccionado}"`;
+  // Cultura y arte
+  'festival de música tradicional',
+  'creación de un mural comunitario',
+  'descubrimiento arqueológico',
+  'cocina internacional para niños',
   
-  const configuracionNivel = {
+  // Valores y emociones
+  'superar el miedo a la oscuridad',
+  'hacer nuevos amigos en la escuela',
+  'resolver un misterio en el vecindario',
+  'cuidar una mascota especial',
+  
+  // Fantasía y creatividad
+  'biblioteca mágica de cuentos',
+  'jardín de plantas parlantes',
+  'ciudad submarina perdida',
+  'circo de las estrellas'
+];
+
+/**
+ * Obtener prompt optimizado según nivel
+ */
+export function obtenerPromptOptimizado(nivel, tema = null, nombresPersonajes = []) {
+  // Seleccionar tema específico si no se proporciona
+  const temaEspecifico = tema || TEMAS_ESPECIFICOS[Math.floor(Math.random() * TEMAS_ESPECIFICOS.length)];
+  
+  // Nombres de personajes proporcionados
+  const nombres = nombresPersonajes.length > 0 
+    ? nombresPersonajes.join(' y ')
+    : 'dos amigos';
+  
+  const configuraciones = {
     basico: {
       edad: '6-8 años',
-      vocabulario: 'simple y cotidiano',
-      oraciones: 'cortas y directas (máximo 10 palabras)',
-      longitud: '150-200 palabras',
+      palabras: '150-180',
+      oraciones: 'muy cortas (máximo 8 palabras)',
+      vocabulario: 'cotidiano y simple',
       preguntas: 3,
+      complejidad: 'muy básica, conceptos concretos'
     },
     intermedio: {
       edad: '9-10 años',
-      vocabulario: 'variado con algunas palabras nuevas',
-      oraciones: 'de longitud media (10-15 palabras)',
-      longitud: '250-300 palabras',
+      palabras: '250-280',
+      oraciones: 'medias (8-12 palabras)',
+      vocabulario: 'variado con palabras nuevas explicadas en contexto',
       preguntas: 4,
+      complejidad: 'moderada, algunos conceptos abstractos'
     },
     avanzado: {
       edad: '11-12 años',
+      palabras: '350-380',
+      oraciones: 'complejas con subordinadas (12-15 palabras)',
       vocabulario: 'rico y descriptivo',
-      oraciones: 'complejas con subordinadas',
-      longitud: '350-400 palabras',
       preguntas: 5,
+      complejidad: 'avanzada, pensamiento crítico'
     }
   };
   
-  const config = configuracionNivel[nivel] || configuracionNivel.basico;
+  const config = configuraciones[nivel] || configuraciones.basico;
   
-  return `${basePrompt}
+  return `🎯 MISIÓN: Crear un cuento ÚNICO y MEMORABLE sobre: "${temaEspecifico}"
 
-🌍 IDIOMA OBLIGATORIO: ESPAÑOL PERFECTO
-⚠️ CRÍTICO: TODO el cuento debe estar en ESPAÑOL (títulos, contenido, preguntas, explicaciones)
-❌ EXCEPCIÓN: Solo el campo "busqueda" dentro de "imagenes" en INGLÉS
+👥 PERSONAJES OBLIGATORIOS (USA ESTOS NOMBRES):
+- Protagonistas: ${nombres}
+- ⚠️ CRÍTICO: NO cambies estos nombres. NO uses "Luna y Orión" ni otros nombres genéricos.
 
-👥 PERSONAJES ÚNICOS:
-⚠️ NO uses personajes repetitivos como "Luna y Orión"
-✅ Crea nombres NUEVOS y CREATIVOS para cada cuento
-✅ Usa nombres hispanos variados: Sofía, Miguel, Valentina, Diego, etc.
-✅ O nombres de animales: Pelusa, Manchitas, Colita, etc.
-✅ Los personajes deben ser DIFERENTES en cada cuento
+🌍 IDIOMA: Español perfecto en TODO excepto campo "busqueda" (inglés para imágenes)
 
-REQUISITOS DEL CUENTO:
-- Edad: ${config.edad}
+📖 ESPECIFICACIONES DEL CUENTO:
+- Edad objetivo: ${config.edad}
+- Longitud: ${config.palabras} palabras
+- Oraciones: ${config.oraciones}
 - Vocabulario: ${config.vocabulario}
-- Longitud: ${config.longitud}
-- Preguntas: ${config.preguntas}
-- Tema: ${temaSeleccionado}
+- Complejidad: ${config.complejidad}
 
-PASO 2 - GENERAR DESCRIPCIONES VISUALES DETALLADAS:
-⚠️ MUY IMPORTANTE: Cada imagen necesita una descripción visual DETALLADA en INGLÉS
-✅ Las descripciones deben ser específicas al cuento que acabas de crear
-✅ Incluir nombres de personajes, ambiente, colores, emociones
-✅ Estilo: "children's book illustration", "colorful", "friendly", "storybook art"
+✨ CREATIVIDAD:
+- Historia ORIGINAL - evita tramas comunes
+- Giro sorpresivo pero apropiado para niños
+- Mensaje educativo integrado naturalmente
+- Final satisfactorio y positivo
 
-FORMATO DE CADA IMAGEN:
+🎨 DESCRIPCIONES VISUALES (para generar ilustraciones):
+⚠️ MUY IMPORTANTE: Crea 3 descripciones DETALLADAS en INGLÉS para ilustraciones
+
+FORMATO de cada imagen:
 {
-  "busqueda": "short keywords in english",
-  "descripcion": "DETAILED visual description in english: [character names] [specific action] [environment details] [colors] [mood], children's book illustration, colorful, friendly, storybook style",
+  "busqueda": "3-5 keywords in english",
+  "descripcion": "DETAILED scene description in english: [exact character names from story] [specific action happening] [environment with colors and details] [emotional atmosphere] [art style: children's book illustration, watercolor, friendly, colorful]",
   "momento": "inicio" | "desarrollo" | "final"
 }
 
-⚠️ CRÍTICO: Las descripciones deben ser ÚNICAS para cada cuento, no genéricas
-✅ Incluir detalles específicos de TU cuento (nombres, lugares, objetos del cuento)
-✅ Describir la ESCENA EXACTA que está pasando en ese momento del cuento
-✅ Cada momento debe mostrar progresión: inicio (presentación) → desarrollo (acción) → final (conclusión)
-✅ Las descripciones en INGLÉS son esenciales para que Unsplash/Dall-E encuentren imágenes correctas
+📋 PREGUNTAS DE COMPRENSIÓN (${config.preguntas} preguntas):
+- Variadas: comprensión literal, inferencia, vocabulario, causa-efecto
+- 4 opciones cada una, solo 1 correcta
+- Explicación educativa para cada respuesta
 
-FORMATO JSON OBLIGATORIO:
+🎯 FORMATO JSON ESTRICTO:
 {
-  "titulo": "El Título en Español",
-  "tema": "${temaSeleccionado}",
-  "contenido": "Todo el cuento en español...",
+  "titulo": "Título llamativo en español",
+  "tema": "${temaEspecifico}",
+  "contenido": "Historia completa en español, dividida en párrafos cortos",
   "personajes": [
     {
-      "nombre": "Nombre único en español",
-      "descripcion": "Descripción en español",
+      "nombre": "${nombresPersonajes[0] || 'Primer personaje'}",
+      "descripcion": "Descripción del personaje",
       "tipo": "protagonista"
+    },
+    {
+      "nombre": "${nombresPersonajes[1] || 'Segundo personaje'}",
+      "descripcion": "Descripción del personaje",
+      "tipo": "secundario"
     }
   ],
   "imagenes": [
     {
-      "busqueda": "short keywords in english",
-      "descripcion": "DETAILED visual description in english: [character names] [specific action] [environment details] [colors] [mood], children's book illustration, colorful, friendly, storybook style",
+      "busqueda": "keywords for image search",
+      "descripcion": "Detailed visual description with character names, actions, environment, colors, mood, art style",
       "momento": "inicio"
+    },
+    {
+      "busqueda": "keywords for image search",
+      "descripcion": "Detailed visual description with character names, actions, environment, colors, mood, art style",
+      "momento": "desarrollo"
+    },
+    {
+      "busqueda": "keywords for image search",
+      "descripcion": "Detailed visual description with character names, actions, environment, colors, mood, art style",
+      "momento": "final"
     }
   ],
   "preguntas": [
     {
       "pregunta": "Pregunta en español",
-      "opciones": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+      "opciones": ["A", "B", "C", "D"],
       "respuestaCorrecta": 0,
-      "explicacion": "Explicación en español"
+      "explicacion": "Por qué es correcta"
     }
-  ]
+  ],
+  "mensajeEducativo": "Lección o valor del cuento"
 }
 
-Genera el cuento AHORA en español:`;
+⚠️ RECUERDA:
+- USA los nombres de personajes proporcionados: ${nombres}
+- Cada cuento debe ser DIFERENTE y ÚNICO
+- Descripciones de imágenes DETALLADAS en inglés
+- TODO el contenido en español excepto descripciones de imágenes
+
+¡Genera el cuento AHORA!`;
+}
+
+/**
+ * Obtener tema aleatorio único
+ */
+export function obtenerTemaAleatorio() {
+  return TEMAS_ESPECIFICOS[Math.floor(Math.random() * TEMAS_ESPECIFICOS.length)];
+}
+
+/**
+ * Validar que el cuento no repita patrones comunes
+ */
+export function validarOriginalidad(cuento, historialTitulos = []) {
+  // Verificar que no repita títulos anteriores
+  if (historialTitulos.includes(cuento.titulo)) {
+    return {
+      valido: false,
+      error: 'Título duplicado'
+    };
+  }
+  
+  // Verificar que no use personajes repetitivos
+  const personajesRepetitivos = ['Luna', 'Orión', 'Estrella y Cometa'];
+  const tienePersonajesRepetitivos = cuento.personajes?.some(p => 
+    personajesRepetitivos.some(rep => p.nombre.includes(rep))
+  );
+  
+  if (tienePersonajesRepetitivos) {
+    return {
+      valido: false,
+      error: 'Personajes repetitivos detectados'
+    };
+  }
+  
+  return { valido: true };
 }
