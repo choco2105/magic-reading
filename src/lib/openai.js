@@ -15,10 +15,9 @@ const openai = new OpenAI({
 const MODELO = 'gpt-5-nano';
 
 // GPT-5 Nano usa max_completion_tokens en vez de max_tokens
-const MAX_COMPLETION_TOKENS = 1500;
+const MAX_COMPLETION_TOKENS = 2500;
 
-// Temperature optimizada
-const TEMPERATURE = 0.7;
+
 
 // Reasoning effort para máxima velocidad
 const REASONING_EFFORT = 'minimal';
