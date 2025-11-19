@@ -1,5 +1,5 @@
 // ============================================
-// GPT-5 NANO - VERSIÓN FINAL CORRECTA
+// GPT-5 NANO - VERSIÓN MEJORADA CON PROMPT CORRECTO
 // ============================================
 
 import OpenAI from 'openai';
@@ -9,23 +9,15 @@ const openai = new OpenAI({
 });
 
 // ============================================
-// CONFIGURACIÓN PARA GPT-5 NANO
+// CONFIGURACIÓN
 // ============================================
 
 const MODELO = 'gpt-5-nano';
-
-// GPT-5 Nano usa max_completion_tokens (NO max_tokens)
 const MAX_COMPLETION_TOKENS = 1500;
-
-// ⚠️ IMPORTANTE: GPT-5 Nano NO acepta temperature personalizada
-// Solo acepta el valor por defecto (1)
-// Por eso NO definimos temperature aquí
-
-// Reasoning effort para máxima velocidad
 const REASONING_EFFORT = 'minimal';
 
 // ============================================
-// BANCOS DE DATOS
+// BANCOS DE DATOS MEJORADOS
 // ============================================
 
 const NOMBRES_BANCO = {
@@ -34,9 +26,15 @@ const NOMBRES_BANCO = {
     'Lucía', 'Santiago', 'Isabella', 'Nicolás', 'Martina', 'Gabriel',
     'Camila', 'Daniel', 'Victoria', 'Alejandro', 'María', 'Sebastián'
   ],
+  // ✅ NOMBRES NORMALES DE MASCOTAS (no raros)
   secundarios: [
-    'Estrella', 'Max', 'Luna', 'Toby', 'Nieve', 'Bruno',
-    'Chispa', 'Rocky', 'Perla', 'Coco', 'Miel', 'Simba'
+    // Perros comunes
+    'Max', 'Luna', 'Rocky', 'Bella', 'Toby', 'Coco',
+    'Bruno', 'Lola', 'Rex', 'Mía', 'Zeus', 'Nala',
+    // Gatos comunes
+    'Michi', 'Pelusa', 'Garfield', 'Félix', 'Manchas', 'Bigotes',
+    // Otros animales
+    'Tambor', 'Copito', 'Pipo', 'Bolita', 'Canela', 'Chocolate'
   ]
 };
 
@@ -69,7 +67,7 @@ function seleccionarUnicos(array, cantidad) {
 }
 
 // ============================================
-// FUNCIÓN PRINCIPAL
+// FUNCIÓN PRINCIPAL CON PROMPT MEJORADO
 // ============================================
 
 export async function generarCuentoRapido(nivel, tema = null) {
@@ -89,64 +87,120 @@ export async function generarCuentoRapido(nivel, tema = null) {
       avanzado: { palabrasPorParrafo: 80, preguntas: 5 }
     }[nivel] || { palabrasPorParrafo: 60, preguntas: 4 };
     
-    const prompt = `Cuento infantil: ${temaElegido}
+    // ============================================
+    // PROMPT MEJORADO (basado en el original)
+    // ============================================
+    const prompt = `Crea un cuento infantil en español sobre: ${temaElegido}
 
-PERSONAJES: ${protagonista} (niño/niña), ${secundario} (animal)
+PERSONAJES OBLIGATORIOS:
+- ${protagonista} (protagonista humano: niño o niña)
+- ${secundario} (mascota/animal: perro, gato, conejo, etc.)
 
-ESTRUCTURA (3 párrafos, ${config.palabrasPorParrafo} palabras c/u):
-1. INICIO: Presentación
-2. DESARROLLO: Desafío  
-3. FINAL: Resolución
+⚠️ IMPORTANTE PARA PERSONAJES:
+- El protagonista SIEMPRE es un niño/niña humano
+- El secundario SIEMPRE es un animal/mascota
+- Define claramente si es niño/niña y qué tipo de animal
 
-IMÁGENES (en inglés, sin nombres):
-- inicio: "a boy/girl and a dog/cat [acción]"
-- desarrollo: "a boy/girl and a dog/cat [acción]" 
-- final: "a boy/girl and a dog/cat [acción]"
+⚠️ ESTRUCTURA CRÍTICA - EXACTAMENTE 3 PÁRRAFOS:
+- Párrafo 1 (INICIO): ~${config.palabrasPorParrafo} palabras - Presentación de personajes y situación inicial
+- Párrafo 2 (DESARROLLO): ~${config.palabrasPorParrafo} palabras - Desafío principal y acción
+- Párrafo 3 (FINAL): ~${config.palabrasPorParrafo} palabras - Resolución y aprendizaje
 
-PREGUNTAS: ${config.preguntas} con explicaciones breves
+⚠️ CRÍTICO: NO incluyas las etiquetas "INICIO:", "DESARROLLO:", "FINAL:" en el texto del cuento.
+Solo escribe los 3 párrafos normales, separados con \\n\\n
 
-JSON:
+IMPORTANTE: 
+- SOLO 3 párrafos, separados con \\n\\n
+- Cada párrafo debe ser una escena completa
+- NO exceder los 3 párrafos
+- NO incluir etiquetas como "INICIO:", "DESARROLLO:", "FINAL:" en el contenido
+
+PREGUNTAS: ${config.preguntas} exactas
+
+⚠️ CRÍTICO PARA IMÁGENES - USA TIPO DE PERSONAJE, NO NOMBRE:
+- NO uses nombres en los prompts de imágenes
+- USA: "a child", "a boy", "a girl", "a dog", "a cat", "a rabbit", etc.
+- NUNCA: "${protagonista}", "${secundario}" (nombres confunden a DALL-E)
+- Ejemplo CORRECTO: "a curious boy and his loyal dog playing"
+- Ejemplo INCORRECTO: "Sofia and Perla playing"
+
+FORMATO JSON (responde SOLO esto):
 {
-  "titulo": "...",
-  "contenido": "párrafo1\\n\\npárrafo2\\n\\npárrafo3",
+  "titulo": "Titulo del cuento",
+  "contenido": "Primer párrafo aquí (${config.palabrasPorParrafo} palabras). La historia comienza de forma natural.\\n\\nSegundo párrafo aquí (${config.palabrasPorParrafo} palabras). Continúa la aventura sin etiquetas.\\n\\nTercer párrafo aquí (${config.palabrasPorParrafo} palabras). Final satisfactorio.",
   "tema": "${temaElegido}",
   "personajes": [
-    {"nombre": "${protagonista}", "descripcion": "...", "tipo": "protagonista", "tipoVisual": "boy/girl", "emoji": "👦/👧"},
-    {"nombre": "${secundario}", "descripcion": "...", "tipo": "secundario", "tipoVisual": "dog/cat/etc", "emoji": "🐶/🐱/etc"}
+    {
+      "nombre": "${protagonista}", 
+      "descripcion": "Niño/niña curioso de 8 años", 
+      "tipo": "protagonista", 
+      "tipoVisual": "boy" o "girl",
+      "emoji": "👦" o "👧"
+    },
+    {
+      "nombre": "${secundario}", 
+      "descripcion": "Describe el animal: perro leal, gato juguetón, etc.", 
+      "tipo": "secundario", 
+      "tipoVisual": "dog" o "cat" o "rabbit" o "bird" (tipo de animal en inglés),
+      "emoji": "🐶" o "🐱" o "🐰" etc
+    }
   ],
   "imagenes": [
-    {"prompt": "children's illustration: a [tipo] and a [tipo] [acción], watercolor", "descripcion": "...", "momento": "inicio"},
-    {"prompt": "children's illustration: a [tipo] and a [tipo] [acción], watercolor", "descripcion": "...", "momento": "desarrollo"},
-    {"prompt": "children's illustration: a [tipo] and a [tipo] [acción], watercolor", "descripcion": "...", "momento": "final"}
+    {
+      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 1], bright cheerful colors, watercolor style, friendly, safe for kids",
+      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 1",
+      "momento": "inicio"
+    },
+    {
+      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 2], exciting moment, vibrant colors, watercolor style, friendly, safe for kids",
+      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 2",
+      "momento": "desarrollo"
+    },
+    {
+      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 3], happy ending, warm colors, watercolor style, friendly, safe for kids",
+      "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 3",
+      "momento": "final"
+    }
   ],
   "preguntas": [
-    {"pregunta": "...", "opciones": ["A","B","C","D"], "respuestaCorrecta": 0, "explicacion": "..."}
+    {"pregunta": "¿Qué sucede en el inicio del cuento?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 0, "explicacion": "Explicación detallada con referencia al texto"},
+    {"pregunta": "¿Cuál es el desafío principal?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 1, "explicacion": "Explicación detallada con referencia al texto"},
+    {"pregunta": "¿Cómo se resuelve la situación?", "opciones": ["A", "B", "C", "D"], "respuestaCorrecta": 2, "explicacion": "Explicación detallada con referencia al texto"}
   ]
-}`;
+}
+
+REGLAS ESTRICTAS:
+1. EXACTAMENTE 3 párrafos (no más, no menos)
+2. Personajes: protagonista = niño/niña humano, secundario = animal específico
+3. En prompts de imágenes USA "a boy", "a girl", "a dog", "a cat" - NUNCA nombres propios
+4. Cada imagen debe describir LITERALMENTE lo que pasa en su párrafo correspondiente
+5. Las preguntas deben poder responderse CON el contenido del cuento
+6. Explicaciones claras que CITEN partes del cuento
+7. Genera EXACTAMENTE ${config.preguntas} preguntas
+8. Cada pregunta DEBE tener el campo "pregunta" con texto válido
+9. NO dejes campos vacíos
+10. Define tipoVisual en cada personaje (boy/girl para humanos, dog/cat/rabbit/bird para animales)
+11. ⚠️ MUY IMPORTANTE: NO incluyas "INICIO:", "DESARROLLO:", "FINAL:" en el contenido del cuento
+12. El contenido debe ser solo los 3 párrafos narrativos, sin etiquetas`;
 
     // ============================================
-    // LLAMADA A GPT-5 NANO - PARÁMETROS CORRECTOS
+    // LLAMADA A API
     // ============================================
     const completion = await openai.chat.completions.create({
       model: MODELO,
       messages: [
         {
           role: 'system',
-          content: 'Escritor infantil. 3 párrafos exactos. Personajes: humano + animal. Imágenes en inglés sin nombres. JSON válido.'
+          content: 'Eres escritor experto de cuentos infantiles. Creas historias en EXACTAMENTE 3 párrafos narrativos limpios, sin etiquetas como "INICIO:", "DESARROLLO:", "FINAL:". Las imágenes deben usar tipos genéricos (a boy, a girl, a dog, a cat) NUNCA nombres propios. El protagonista siempre es humano (niño o niña), el secundario siempre es animal. Respondes SOLO con JSON válido. NUNCA dejes campos vacíos. Cada pregunta DEBE tener texto en el campo pregunta.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      
-      // ✅ PARÁMETROS SOPORTADOS POR GPT-5 NANO:
       max_completion_tokens: MAX_COMPLETION_TOKENS,
       reasoning_effort: REASONING_EFFORT,
       response_format: { type: 'json_object' }
-      
-      // ❌ NO INCLUIR: temperature, top_p, presence_penalty, frequency_penalty
-      // GPT-5 Nano usa temperature=1 por defecto y no se puede cambiar
     });
     
     const tiempo = Date.now() - timestamp;
@@ -168,6 +222,13 @@ JSON:
       throw new Error('Falta título o contenido');
     }
     
+    // LIMPIAR cualquier etiqueta que haya quedado
+    resultado.contenido = resultado.contenido
+      .replace(/INICIO:\s*/gi, '')
+      .replace(/DESARROLLO:\s*/gi, '')
+      .replace(/FINAL:\s*/gi, '')
+      .replace(/Párrafo \d+:\s*/gi, '');
+    
     const parrafos = resultado.contenido.split('\n\n').filter(p => p.trim());
     if (parrafos.length !== 3) {
       console.warn(`⚠️ Ajustando párrafos: ${parrafos.length} -> 3`);
@@ -182,7 +243,7 @@ JSON:
       throw new Error(`Faltan preguntas: ${resultado.preguntas?.length || 0} de ${config.preguntas}`);
     }
     
-    // Validar y corregir preguntas
+    // Validar preguntas
     for (let i = 0; i < resultado.preguntas.length; i++) {
       const p = resultado.preguntas[i];
       
@@ -248,7 +309,6 @@ JSON:
     const costoOutput = (completion.usage.completion_tokens / 1000000) * 0.400;
     const costoTotal = costoInput + costoOutput;
     
-    // Calcular ahorro vs gpt-4o-mini
     const costoMiniInput = (completion.usage.prompt_tokens / 1000000) * 0.150;
     const costoMiniOutput = (completion.usage.completion_tokens / 1000000) * 0.600;
     const costoMiniTotal = costoMiniInput + costoMiniOutput;
@@ -256,13 +316,12 @@ JSON:
     
     console.log(`✅ Cuento generado con GPT-5 NANO en ${tiempo}ms`);
     console.log(`📖 "${resultado.titulo}"`);
-    console.log(`📄 ${parrafos.length} párrafos`);
+    console.log(`📄 ${parrafos.length} párrafos limpios (sin etiquetas)`);
     console.log(`🎭 ${resultado.personajes.map(p => p.nombre).join(', ')}`);
     console.log(`❓ ${resultado.preguntas.length} preguntas`);
-    console.log(`📊 Tokens: ${tokensUsados} (${completion.usage.prompt_tokens} in + ${completion.usage.completion_tokens} out)`);
-    console.log(`💰 Costo: $${costoTotal.toFixed(6)} (vs $${costoMiniTotal.toFixed(6)} gpt-4o-mini)`);
-    console.log(`🎉 AHORRO: ${ahorro}% más barato que gpt-4o-mini`);
-    console.log(`⚡ VELOCIDAD: ~2x más rápido que gpt-4o-mini`);
+    console.log(`📊 Tokens: ${tokensUsados}`);
+    console.log(`💰 Costo: $${costoTotal.toFixed(6)}`);
+    console.log(`🎉 AHORRO: ${ahorro}% vs gpt-4o-mini`);
     
     return {
       success: true,
