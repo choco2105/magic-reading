@@ -69,8 +69,13 @@ export async function generarCuentoRapido(nivel, tema = null) {
     const prompt = `Crea un cuento infantil en español sobre: ${temaElegido}
 
 PERSONAJES OBLIGATORIOS:
-- ${protagonista} (protagonista)
-- ${secundario} (amigo/mascota)
+- ${protagonista} (protagonista humano: niño o niña)
+- ${secundario} (mascota/animal: perro, gato, conejo, etc.)
+
+⚠️ IMPORTANTE PARA PERSONAJES:
+- El protagonista SIEMPRE es un niño/niña humano
+- El secundario SIEMPRE es un animal/mascota
+- Define claramente si es niño/niña y qué tipo de animal
 
 ⚠️ ESTRUCTURA CRÍTICA - EXACTAMENTE 3 PÁRRAFOS:
 - Párrafo 1 (INICIO): ~${config.palabrasPorParrafo} palabras - Presentación de personajes y situación inicial
@@ -84,10 +89,12 @@ IMPORTANTE:
 
 PREGUNTAS: ${config.preguntas} exactas
 
-IMÁGENES - Describir EXACTAMENTE lo que pasa en cada párrafo:
-- Imagen 1: Describe LITERALMENTE la escena del párrafo 1
-- Imagen 2: Describe LITERALMENTE la escena del párrafo 2  
-- Imagen 3: Describe LITERALMENTE la escena del párrafo 3
+⚠️ CRÍTICO PARA IMÁGENES - USA TIPO DE PERSONAJE, NO NOMBRE:
+- NO uses nombres en los prompts de imágenes
+- USA: "a child", "a boy", "a girl", "a dog", "a cat", "a rabbit", etc.
+- NUNCA: "${protagonista}", "${secundario}" (nombres confunden a DALL-E)
+- Ejemplo CORRECTO: "a curious boy and his loyal dog playing"
+- Ejemplo INCORRECTO: "Sofia and Perla playing"
 
 FORMATO JSON (responde SOLO esto):
 {
@@ -95,22 +102,34 @@ FORMATO JSON (responde SOLO esto):
   "contenido": "Párrafo 1 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 2 aquí (${config.palabrasPorParrafo} palabras).\\n\\nPárrafo 3 aquí (${config.palabrasPorParrafo} palabras).",
   "tema": "${temaElegido}",
   "personajes": [
-    {"nombre": "${protagonista}", "descripcion": "Niño curioso de 8 años", "tipo": "protagonista", "emoji": "👦"},
-    {"nombre": "${secundario}", "descripcion": "Mascota leal y valiente", "tipo": "secundario", "emoji": "🐶"}
+    {
+      "nombre": "${protagonista}", 
+      "descripcion": "Niño/niña curioso de 8 años", 
+      "tipo": "protagonista", 
+      "tipoVisual": "boy" o "girl",
+      "emoji": "👦" o "👧"
+    },
+    {
+      "nombre": "${secundario}", 
+      "descripcion": "Describe el animal: perro leal, gato juguetón, etc.", 
+      "tipo": "secundario", 
+      "tipoVisual": "dog" o "cat" o "rabbit" o "bird" (tipo de animal en inglés),
+      "emoji": "🐶" o "🐱" o "🐰" etc
+    }
   ],
   "imagenes": [
     {
-      "prompt": "Children's book illustration: ${protagonista} and ${secundario} [EXACT scene from paragraph 1], bright cheerful colors, watercolor style",
+      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 1], bright cheerful colors, watercolor style, friendly, safe for kids",
       "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 1",
       "momento": "inicio"
     },
     {
-      "prompt": "Children's book illustration: ${protagonista} and ${secundario} [EXACT scene from paragraph 2], exciting moment, vibrant colors, watercolor style",
+      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 2], exciting moment, vibrant colors, watercolor style, friendly, safe for kids",
       "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 2",
       "momento": "desarrollo"
     },
     {
-      "prompt": "Children's book illustration: ${protagonista} and ${secundario} [EXACT scene from paragraph 3], happy ending, warm colors, watercolor style",
+      "prompt": "Children's book illustration: a [boy/girl] and a [dog/cat/rabbit] [EXACT action from paragraph 3], happy ending, warm colors, watercolor style, friendly, safe for kids",
       "descripcion": "Descripción EXACTA de lo que ocurre en el párrafo 3",
       "momento": "final"
     }
@@ -124,19 +143,22 @@ FORMATO JSON (responde SOLO esto):
 
 REGLAS ESTRICTAS:
 1. EXACTAMENTE 3 párrafos (no más, no menos)
-2. Cada imagen debe describir LITERALMENTE lo que pasa en su párrafo correspondiente
-3. Las preguntas deben poder responderse CON el contenido del cuento
-4. Explicaciones claras que CITEN partes del cuento
-5. Genera EXACTAMENTE ${config.preguntas} preguntas
-6. Cada pregunta DEBE tener el campo "pregunta" con texto válido
-7. NO dejes campos vacíos`;
+2. Personajes: protagonista = niño/niña humano, secundario = animal específico
+3. En prompts de imágenes USA "a boy", "a girl", "a dog", "a cat" - NUNCA nombres propios
+4. Cada imagen debe describir LITERALMENTE lo que pasa en su párrafo correspondiente
+5. Las preguntas deben poder responderse CON el contenido del cuento
+6. Explicaciones claras que CITEN partes del cuento
+7. Genera EXACTAMENTE ${config.preguntas} preguntas
+8. Cada pregunta DEBE tener el campo "pregunta" con texto válido
+9. NO dejes campos vacíos
+10. Define tipoVisual en cada personaje (boy/girl para humanos, dog/cat/rabbit/bird para animales)`;
 
     const completion = await openai.chat.completions.create({
       model: MODELO,
       messages: [
         {
           role: 'system',
-          content: 'Eres escritor experto de cuentos infantiles. Creas historias en EXACTAMENTE 3 párrafos, con imágenes que coinciden perfectamente con cada párrafo. Respondes SOLO con JSON válido. NUNCA dejes campos vacíos. Cada pregunta DEBE tener texto en el campo pregunta.'
+          content: 'Eres escritor experto de cuentos infantiles. Creas historias en EXACTAMENTE 3 párrafos, con imágenes que coinciden perfectamente con cada párrafo. MUY IMPORTANTE: En los prompts de imágenes USA tipos genéricos (a boy, a girl, a dog, a cat) NUNCA nombres propios. El protagonista siempre es humano (niño o niña), el secundario siempre es animal. Respondes SOLO con JSON válido. NUNCA dejes campos vacíos. Cada pregunta DEBE tener texto en el campo pregunta.'
         },
         {
           role: 'user',
@@ -220,6 +242,29 @@ REGLAS ESTRICTAS:
     if (!resultado.personajes || resultado.personajes.length < 2) {
       throw new Error('Faltan personajes');
     }
+    
+    // ASEGURAR que cada personaje tenga tipoVisual
+    resultado.personajes = resultado.personajes.map((p, idx) => {
+      if (!p.tipoVisual) {
+        // Si no tiene tipoVisual, inferirlo del tipo
+        if (p.tipo === 'protagonista') {
+          p.tipoVisual = Math.random() > 0.5 ? 'boy' : 'girl';
+          p.emoji = p.tipoVisual === 'boy' ? '👦' : '👧';
+        } else {
+          // Para secundarios, usar emoji para inferir tipo de animal
+          const animalTypes = {
+            '🐶': 'dog', '🐕': 'dog',
+            '🐱': 'cat', '🐈': 'cat', 
+            '🐰': 'rabbit', '🐇': 'rabbit',
+            '🐦': 'bird', '🦜': 'bird',
+            '🐻': 'bear', '🦊': 'fox',
+            '🐼': 'panda', '🐨': 'koala'
+          };
+          p.tipoVisual = animalTypes[p.emoji] || 'dog';
+        }
+      }
+      return p;
+    });
     
     console.log(`✅ Cuento generado en ${tiempo}ms`);
     console.log(`📖 "${resultado.titulo}"`);
