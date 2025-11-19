@@ -8,20 +8,16 @@ export default function CuentoDisplay({ cuento, onContinuar }) {
   const [mostrarPersonajes, setMostrarPersonajes] = useState(true);
   const [imagenCargando, setImagenCargando] = useState(true);
   const [errorImagen, setErrorImagen] = useState(false);
-  const [cuentoId, setCuentoId] = useState(null);
   
   const parrafos = cuento?.contenido?.split('\n\n').filter(p => p.trim()) || [];
   
   // Detectar cuando cambia el cuento y resetear todo
   useEffect(() => {
-    if (cuento?.id !== cuentoId) {
-      console.log('🔄 Nuevo cuento detectado, reseteando estado...');
-      setCuentoId(cuento?.id);
-      setParrafoActual(0);
-      setImagenCargando(true);
-      setErrorImagen(false);
-    }
-  }, [cuento?.id, cuentoId]);
+    console.log('🔄 Nuevo cuento detectado, reseteando estado...');
+    setParrafoActual(0);
+    setImagenCargando(true);
+    setErrorImagen(false);
+  }, [cuento?.id]);
   
   const getImagenActual = () => {
     if (!cuento?.imagenes || cuento.imagenes.length === 0) return null;

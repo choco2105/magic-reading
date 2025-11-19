@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Card from './ui/Card';
 import useStore from '@/store/useStore';
-import { obtenerEmojiNivel } from '@/lib/utils';
 
 export default function NivelSelector({ onSelect, nivelActual }) {
   const router = useRouter();

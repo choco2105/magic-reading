@@ -169,9 +169,6 @@ magic-reading/
 │   │   ├── openai.js          # Integración OpenAI
 │   │   ├── prompts.js         # Prompts para IA
 │   │   └── utils.js           # Funciones auxiliares
-│   ├── hooks/                 # Custom hooks
-│   │   ├── useUser.js
-│   │   └── useProgreso.js
 │   └── store/                 # Estado global (Zustand)
 │       └── useStore.js
 ├── public/

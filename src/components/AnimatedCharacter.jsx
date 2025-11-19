@@ -5,8 +5,7 @@ import { motion } from 'framer-motion';
 export default function AnimatedCharacter({ 
   personaje, 
   posicion = 'left', 
-  delay = 0,
-  onComplete = null 
+  delay = 0
 }) {
   // Mapeo de tipos de personajes a emojis
   const emojisPorTipo = {
@@ -80,7 +79,6 @@ export default function AnimatedCharacter({
       animate={variants[posicion].animate}
       exit={variants[posicion].exit}
       className={`fixed bottom-4 md:bottom-8 ${posicionStyles[posicion]} z-20`}
-      onAnimationComplete={onComplete}
       style={{ pointerEvents: 'none' }} // No bloquear clicks
     >
       <div className="relative">
