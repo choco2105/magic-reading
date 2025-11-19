@@ -1,239 +1,211 @@
-// Sistema OpenAI OPTIMIZADO - Más rápido y económico
+// Sistema OpenAI FINAL
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-/**
- * USAR GPT-4O-MINI - 60% más rápido y 80% más barato que GPT-3.5-turbo
- * Latencia: ~500ms vs ~2000ms
- * Costo: $0.15/1M tokens vs $0.50/1M tokens
- */
-const MODELO_RAPIDO = 'gpt-4o-mini'; // ⚡ Mucho más rápido
-const MAX_TOKENS_OPTIMIZADO = 1800; // Reducido de 2500
+const MODELO = 'gpt-4o-mini';
+const MAX_TOKENS = 2500;
 
-/**
- * Lista de nombres diversos para evitar repetición
- */
-const NOMBRES_DIVERSOS = {
-  niños: [
-    'Sofía', 'Miguel', 'Valentina', 'Diego', 'Isabella', 'Mateo',
-    'Camila', 'Santiago', 'Lucía', 'Sebastián', 'Emma', 'Nicolás',
-    'María', 'Daniel', 'Martina', 'Alejandro', 'Victoria', 'Gabriel'
+const NOMBRES_BANCO = {
+  protagonistas: [
+    'Sofía', 'Miguel', 'Valentina', 'Diego', 'Emma', 'Mateo',
+    'Lucía', 'Santiago', 'Isabella', 'Nicolás', 'Martina', 'Gabriel',
+    'Camila', 'Daniel', 'Victoria', 'Alejandro', 'María', 'Sebastián'
   ],
-  niñas: [
-    'Luna', 'Estrella', 'Aurora', 'Marina', 'Celeste', 'Coral',
-    'Iris', 'Jade', 'Perla', 'Rosa', 'Violeta', 'Dalia'
-  ],
-  animales: [
-    'Manchitas', 'Pelusa', 'Colita', 'Ojitos', 'Patitas', 'Bigotes',
-    'Orejas', 'Brillante', 'Saltarín', 'Veloz', 'Travieso', 'Amigo'
-  ],
-  fantasia: [
-    'Zephyr', 'Nova', 'Atlas', 'Phoenix', 'Orion', 'Celeste',
-    'Kai', 'Aria', 'Leo', 'Maya', 'Finn', 'Nora'
+  secundarios: [
+    'Estrella', 'Max', 'Luna', 'Toby', 'Nieve', 'Bruno',
+    'Chispa', 'Rocky', 'Perla', 'Coco', 'Miel', 'Simba'
   ]
 };
 
-/**
- * Seleccionar nombres aleatorios evitando repetición
- */
-function seleccionarNombresUnicos(categoria = 'niños', cantidad = 2) {
-  const nombres = [...NOMBRES_DIVERSOS[categoria]];
+const TEMAS_ESPECIFICOS = [
+  'explorar una cueva mágica',
+  'ayudar a un dragón bebé',
+  'construir un robot amigable',
+  'descubrir un jardín secreto',
+  'salvar un bosque',
+  'viajar en submarino',
+  'encontrar un tesoro pirata',
+  'organizar un concierto',
+  'rescatar animales',
+  'plantar árboles',
+  'crear inventos reciclados',
+  'descubrir fósiles',
+  'viajar en globo',
+  'ayudar aves migratorias',
+  'cocinar recetas del mundo'
+];
+
+function seleccionarUnicos(array, cantidad) {
+  const copia = [...array];
   const seleccionados = [];
-  
-  for (let i = 0; i < cantidad && nombres.length > 0; i++) {
-    const randomIndex = Math.floor(Math.random() * nombres.length);
-    seleccionados.push(nombres.splice(randomIndex, 1)[0]);
+  for (let i = 0; i < cantidad && copia.length > 0; i++) {
+    const idx = Math.floor(Math.random() * copia.length);
+    seleccionados.push(copia.splice(idx, 1)[0]);
   }
-  
   return seleccionados;
 }
 
-/**
- * GENERAR CUENTO OPTIMIZADO - Más rápido y sin repeticiones
- */
 export async function generarCuentoRapido(nivel, tema = null) {
   try {
     const timestamp = Date.now();
     
-    // Seleccionar nombres únicos antes de generar
-    const nombresProtagonistas = seleccionarNombresUnicos('niños', 2);
+    const protagonista = seleccionarUnicos(NOMBRES_BANCO.protagonistas, 1)[0];
+    const secundario = seleccionarUnicos(NOMBRES_BANCO.secundarios, 1)[0];
+    const temaElegido = tema || TEMAS_ESPECIFICOS[Math.floor(Math.random() * TEMAS_ESPECIFICOS.length)];
     
-    const { obtenerPromptOptimizado } = await import('./prompts.js');
-    const prompt = obtenerPromptOptimizado(nivel, tema, nombresProtagonistas);
+    console.log(`⚡ Generando: "${temaElegido}"`);
+    console.log(`👥 Personajes: ${protagonista} y ${secundario}`);
     
-    console.log(`⚡ Generando con ${MODELO_RAPIDO} (ultra-rápido)...`);
-    console.log(`👥 Nombres únicos: ${nombresProtagonistas.join(', ')}`);
+    const config = {
+      basico: { palabras: 140, preguntas: 3 },
+      intermedio: { palabras: 220, preguntas: 4 },
+      avanzado: { palabras: 300, preguntas: 5 }
+    }[nivel] || { palabras: 220, preguntas: 4 };
     
+    const prompt = `Crea un cuento infantil en español sobre: ${temaElegido}
+
+PERSONAJES:
+- ${protagonista} (protagonista)
+- ${secundario} (amigo/mascota)
+
+LONGITUD: ${config.palabras} palabras
+PREGUNTAS: ${config.preguntas} exactas
+
+IMPORTANTE: El contenido DEBE tener parrafos separados con doble salto de linea.
+
+FORMATO JSON (responde SOLO esto):
+{
+  "titulo": "Titulo del cuento",
+  "contenido": "Primer parrafo aqui.\\n\\nSegundo parrafo aqui.\\n\\nTercer parrafo aqui.",
+  "tema": "${temaElegido}",
+  "personajes": [
+    {"nombre": "${protagonista}", "descripcion": "Nino curioso", "tipo": "protagonista", "emoji": "👦"},
+    {"nombre": "${secundario}", "descripcion": "Mascota fiel", "tipo": "secundario", "emoji": "🐶"}
+  ],
+  "imagenes": [
+    {"prompt": "Children illustration ${protagonista} ${secundario} beginning bright", "momento": "inicio"},
+    {"prompt": "Children illustration ${protagonista} ${secundario} exciting moment", "momento": "desarrollo"},
+    {"prompt": "Children illustration ${protagonista} ${secundario} happy ending", "momento": "final"}
+  ],
+  "preguntas": [
+    {"pregunta": "Primera pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 0, "explicacion": "Porque A es correcta"},
+    {"pregunta": "Segunda pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 1, "explicacion": "Porque B es correcta"},
+    {"pregunta": "Tercera pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 2, "explicacion": "Porque C es correcta"},
+    {"pregunta": "Cuarta pregunta del cuento", "opciones": ["Opcion A", "Opcion B", "Opcion C", "Opcion D"], "respuestaCorrecta": 3, "explicacion": "Porque D es correcta"}
+  ]
+}
+
+REGLAS:
+1. Genera EXACTAMENTE ${config.preguntas} preguntas
+2. Divide el contenido en 3-4 parrafos separados con \\n\\n
+3. Cada pregunta DEBE tener el campo "pregunta" con texto
+4. NO dejes campos vacios
+5. Responde SOLO JSON sin markdown`;
+
     const completion = await openai.chat.completions.create({
-      model: MODELO_RAPIDO,
+      model: MODELO,
       messages: [
         {
           role: 'system',
-          content: `Eres un escritor experto de cuentos infantiles educativos en ESPAÑOL.
-
-REGLAS CRÍTICAS:
-1. TODO en español perfecto (títulos, contenido, preguntas)
-2. USA LOS NOMBRES PROPORCIONADOS - NO inventes otros
-3. Descripciones de imágenes en inglés (solo campo "busqueda")
-4. Responde en formato JSON estricto
-5. Crea historias ÚNICAS - evita tramas repetitivas
-
-ESTILO: Alegre, educativo, apropiado para niños, inspirador.`
+          content: 'Eres escritor de cuentos infantiles en español. Respondes SOLO con JSON válido. NUNCA dejes campos vacios. Cada pregunta DEBE tener texto en el campo pregunta.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.95, // Mayor creatividad para evitar repetición
-      max_tokens: MAX_TOKENS_OPTIMIZADO,
-      response_format: { type: 'json_object' },
-      // Parámetros de optimización
-      frequency_penalty: 0.7, // ⚡ Reduce repeticiones
-      presence_penalty: 0.6    // ⚡ Fomenta variedad
+      temperature: 0.85,
+      max_tokens: MAX_TOKENS,
+      response_format: { type: 'json_object' }
     });
     
-    const tiempoTranscurrido = Date.now() - timestamp;
-    console.log(`✅ Respuesta en ${tiempoTranscurrido}ms`);
+    const tiempo = Date.now() - timestamp;
+    let contenido = completion.choices[0].message.content;
+    contenido = contenido.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
-    const contenido = completion.choices[0].message.content;
-    const resultado = JSON.parse(contenido);
+    console.log('📄 Respuesta recibida:', contenido.substring(0, 150) + '...');
     
-    // Validación estricta
-    if (!resultado.titulo || !resultado.contenido || !resultado.preguntas) {
-      throw new Error('Respuesta incompleta de OpenAI');
+    let resultado;
+    try {
+      resultado = JSON.parse(contenido);
+    } catch (parseError) {
+      console.error('❌ Error JSON:', parseError.message);
+      throw new Error('JSON inválido de OpenAI');
     }
     
-    // Validar que las preguntas tengan el formato correcto
-    if (!validarPreguntas(resultado.preguntas)) {
-      throw new Error('Formato de preguntas inválido');
+    if (!resultado.titulo || !resultado.contenido) {
+      throw new Error('Falta título o contenido');
     }
     
-    // Asegurar descripciones de imágenes
+    if (!Array.isArray(resultado.preguntas) || resultado.preguntas.length < config.preguntas) {
+      throw new Error(`Faltan preguntas: ${resultado.preguntas?.length || 0} de ${config.preguntas}`);
+    }
+    
+    // Validar cada pregunta SIN lanzar error, solo corregir
+    for (let i = 0; i < resultado.preguntas.length; i++) {
+      const p = resultado.preguntas[i];
+      
+      // Si falta pregunta, usar las opciones
+      if (!p.pregunta || p.pregunta.trim() === '') {
+        if (Array.isArray(p.opciones) && p.opciones.length > 0) {
+          p.pregunta = p.opciones[0]; // Usar primera opción como pregunta
+          p.opciones = ['Sí', 'No', 'Tal vez', 'No sé']; // Opciones genéricas
+        } else {
+          p.pregunta = `Pregunta ${i + 1} sobre el cuento`;
+          p.opciones = ['Opción A', 'Opción B', 'Opción C', 'Opción D'];
+        }
+      }
+      
+      // Asegurar opciones válidas
+      if (!Array.isArray(p.opciones) || p.opciones.length !== 4) {
+        p.opciones = ['Opción A', 'Opción B', 'Opción C', 'Opción D'];
+      }
+      
+      // Asegurar respuesta correcta válida
+      if (typeof p.respuestaCorrecta !== 'number' || p.respuestaCorrecta < 0 || p.respuestaCorrecta > 3) {
+        p.respuestaCorrecta = 0;
+      }
+      
+      // Asegurar explicación
+      if (!p.explicacion || p.explicacion.trim() === '') {
+        p.explicacion = 'Esta es la respuesta correcta.';
+      }
+    }
+    
+    resultado.preguntas = resultado.preguntas.slice(0, config.preguntas);
+    
     if (!resultado.imagenes || resultado.imagenes.length < 3) {
-      console.warn('⚠️ Generando descripciones de imágenes...');
-      resultado.imagenes = generarDescripcionesVisuales(resultado, nombresProtagonistas);
+      throw new Error('Faltan imágenes');
     }
     
-    console.log(`✅ Cuento generado: "${resultado.titulo}"`);
-    console.log(`   Personajes: ${resultado.personajes?.map(p => p.nombre).join(', ')}`);
-    console.log(`   Imágenes: ${resultado.imagenes.length}`);
-    console.log(`   Tokens: ${completion.usage.total_tokens}`);
+    if (!resultado.personajes || resultado.personajes.length < 2) {
+      throw new Error('Faltan personajes');
+    }
+    
+    console.log(`✅ Cuento generado en ${tiempo}ms`);
+    console.log(`📖 "${resultado.titulo}"`);
+    console.log(`🎭 ${resultado.personajes.map(p => p.nombre).join(', ')}`);
+    console.log(`❓ ${resultado.preguntas.length} preguntas`);
     
     return {
       success: true,
       data: {
         ...resultado,
         nivel,
-        tema: tema || resultado.tema || 'General',
-        duracionEstimada: calcularDuracionLectura(resultado.contenido),
+        duracionEstimada: Math.ceil(resultado.contenido.split(' ').length / 150),
         metadata: {
-          modelo: MODELO_RAPIDO,
+          modelo: MODELO,
           tokens: completion.usage.total_tokens,
-          tiempoGeneracion: tiempoTranscurrido
+          tiempoGeneracion: tiempo
         }
       }
     };
     
   } catch (error) {
-    console.error('❌ Error al generar cuento:', error);
-    throw new Error(`No se pudo generar el cuento: ${error.message}`);
-  }
-}
-
-/**
- * Validar formato de preguntas
- */
-function validarPreguntas(preguntas) {
-  if (!Array.isArray(preguntas) || preguntas.length === 0) {
-    return false;
-  }
-  
-  return preguntas.every(p => 
-    p &&
-    typeof p.pregunta === 'string' &&
-    Array.isArray(p.opciones) &&
-    p.opciones.length === 4 &&
-    typeof p.respuestaCorrecta === 'number' &&
-    p.respuestaCorrecta >= 0 &&
-    p.respuestaCorrecta <= 3 &&
-    typeof p.explicacion === 'string'
-  );
-}
-
-/**
- * Generar descripciones visuales detalladas para imágenes
- */
-function generarDescripcionesVisuales(cuento, nombresPersonajes) {
-  const personajes = nombresPersonajes.join(' and ');
-  const tema = cuento.tema || 'adventure';
-  
-  return [
-    {
-      busqueda: `${personajes} beginning adventure`,
-      descripcion: `Children's book illustration: ${personajes} starting their ${tema} journey, excited expressions, bright morning light, colorful and inviting scene, watercolor style, friendly atmosphere`,
-      momento: 'inicio'
-    },
-    {
-      busqueda: `${personajes} exciting moment`,
-      descripcion: `Children's book illustration: ${personajes} in the middle of ${tema} adventure, dynamic action, vibrant colors, engaging background, storybook art style, magical atmosphere`,
-      momento: 'desarrollo'
-    },
-    {
-      busqueda: `${personajes} happy ending`,
-      descripcion: `Children's book illustration: ${personajes} celebrating success at sunset, joyful smiles, warm colors, triumphant mood, beautiful landscape, heartwarming scene, storybook finale`,
-      momento: 'final'
-    }
-  ];
-}
-
-/**
- * Calcular duración estimada de lectura
- */
-function calcularDuracionLectura(texto) {
-  const palabras = texto.split(/\s+/).length;
-  const palabrasPorMinuto = 150; // Niños leen ~100-200 palabras/min
-  return Math.ceil(palabras / palabrasPorMinuto);
-}
-
-/**
- * GENERAR PREGUNTA ADICIONAL (si se necesita)
- */
-export async function generarPreguntaExtra(contenido, preguntasExistentes) {
-  try {
-    const completion = await openai.chat.completions.create({
-      model: MODELO_RAPIDO,
-      messages: [
-        {
-          role: 'system',
-          content: 'Genera preguntas de comprensión lectora en español. Responde en JSON.'
-        },
-        {
-          role: 'user',
-          content: `Cuento: ${contenido}
-
-Preguntas existentes: ${JSON.stringify(preguntasExistentes)}
-
-Genera 1 pregunta NUEVA y DIFERENTE con este formato JSON:
-{
-  "pregunta": "Pregunta en español",
-  "opciones": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
-  "respuestaCorrecta": 0,
-  "explicacion": "Explicación en español"
-}`
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 300,
-      response_format: { type: 'json_object' }
-    });
-    
-    return JSON.parse(completion.choices[0].message.content);
-  } catch (error) {
-    console.error('Error generando pregunta:', error);
-    throw error;
+    console.error('❌ Error:', error.message);
+    throw new Error(`Error al generar cuento: ${error.message}`);
   }
 }

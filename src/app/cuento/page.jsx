@@ -22,13 +22,12 @@ function CuentoContent() {
       return;
     }
     
-    // Validar si el cuento actual es válido
     if (cuentoActual) {
       if (validarCuento(cuentoActual)) {
         setCargando(false);
         return;
       } else {
-        console.warn('⚠️ Cuento actual inválido, generando uno nuevo...');
+        console.warn('⚠️ Cuento inválido, generando nuevo...');
         limpiarCuento();
       }
     }
@@ -38,7 +37,6 @@ function CuentoContent() {
     }
   }, [usuario, cuentoActual]);
   
-  // Función para validar que un cuento tenga todos los datos necesarios
   const validarCuento = (cuento) => {
     if (!cuento) return false;
     
@@ -46,11 +44,10 @@ function CuentoContent() {
     const tieneTodasLasPropiedades = camposRequeridos.every(campo => cuento[campo]);
     
     if (!tieneTodasLasPropiedades) {
-      console.error('❌ Cuento falta propiedades:', camposRequeridos.filter(c => !cuento[c]));
+      console.error('❌ Falta propiedades:', camposRequeridos.filter(c => !cuento[c]));
       return false;
     }
     
-    // Validar que las preguntas sean válidas
     if (!Array.isArray(cuento.preguntas) || cuento.preguntas.length === 0) {
       console.error('❌ Preguntas inválidas');
       return false;
@@ -82,13 +79,12 @@ function CuentoContent() {
       setCargando(true);
       setError(null);
       
-      // IMPORTANTE: Limpiar cuento anterior antes de generar uno nuevo
       limpiarCuento();
       
       const nivel = searchParams.get('nivel') || usuario?.nivelActual || 'basico';
       const tema = searchParams.get('tema') || null;
       
-      console.log('🎨 Generando nuevo cuento...', { nivel, tema });
+      console.log('🎨 Generando cuento...', { nivel, tema });
       
       toast.loading('Generando tu cuento mágico...', { id: 'generando-cuento' });
       
@@ -114,8 +110,9 @@ function CuentoContent() {
         throw new Error('El cuento generado no tiene el formato correcto');
       }
       
-      console.log('✅ Cuento nuevo recibido:', data.data.titulo);
+      console.log('✅ Cuento recibido:', data.data.titulo);
       console.log('📸 Imágenes:', data.data.imagenes?.length || 0);
+      console.log('❓ Preguntas:', data.data.preguntas?.length || 0);
       
       setCuentoActual(data.data);
       iniciarProgreso();
@@ -123,7 +120,7 @@ function CuentoContent() {
       toast.success('¡Cuento listo! 📖✨', { id: 'generando-cuento' });
       
     } catch (error) {
-      console.error('❌ Error al generar cuento:', error);
+      console.error('❌ Error:', error);
       setError(error.message);
       toast.error('No se pudo generar el cuento', { id: 'generando-cuento' });
       generandoRef.current = false;
@@ -138,29 +135,35 @@ function CuentoContent() {
   
   if (cargando) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" text="Generando tu cuento mágico..." />
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <LoadingSpinner 
+          size="lg" 
+          text="✨ Generando tu cuento mágico ✨" 
+          playSound={true}
+        />
       </div>
     );
   }
   
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="text-6xl mb-4">😕</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <div className="text-center max-w-md">
+          <div className="text-8xl mb-6">😕</div>
+          <h2 className="text-3xl font-black text-gray-800 mb-4">
             Ups, algo salió mal
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-lg text-gray-600 mb-6 bg-white/80 p-4 rounded-2xl">
+            {error}
+          </p>
           <button
             onClick={() => {
               generandoRef.current = false;
               generarNuevoCuento();
             }}
-            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600"
+            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-black text-lg hover:from-purple-600 hover:to-pink-600 shadow-2xl transform hover:scale-105 transition-all"
           >
-            Intentar nuevamente
+            🔄 Intentar nuevamente
           </button>
         </div>
       </div>
@@ -177,8 +180,8 @@ function CuentoContent() {
 export default function CuentoPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" text="Cargando..." />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <LoadingSpinner size="lg" text="Cargando..." playSound={false} />
       </div>
     }>
       <CuentoContent />

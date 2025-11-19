@@ -16,11 +16,6 @@ import { db } from './firebase';
 
 // ==================== USUARIOS ====================
 
-/**
- * Crear o actualizar un usuario
- * @param {string} userId - ID del usuario
- * @param {Object} userData - Datos del usuario
- */
 export async function crearUsuario(userId, userData) {
   try {
     const userRef = doc(db, 'usuarios', userId);
@@ -42,10 +37,6 @@ export async function crearUsuario(userId, userData) {
   }
 }
 
-/**
- * Obtener datos de un usuario
- * @param {string} userId - ID del usuario
- */
 export async function obtenerUsuario(userId) {
   try {
     const userRef = doc(db, 'usuarios', userId);
@@ -64,11 +55,6 @@ export async function obtenerUsuario(userId) {
 
 // ==================== PROGRESO ====================
 
-/**
- * Guardar progreso de un cuento
- * @param {string} userId - ID del usuario
- * @param {Object} progresoData - Datos del progreso
- */
 export async function guardarProgreso(userId, progresoData) {
   try {
     const progresoRef = doc(collection(db, 'progreso'));
@@ -100,11 +86,6 @@ export async function guardarProgreso(userId, progresoData) {
   }
 }
 
-/**
- * Actualizar estadísticas generales del usuario
- * @param {string} userId - ID del usuario
- * @param {Object} progreso - Datos del progreso completado
- */
 async function actualizarEstadisticasUsuario(userId, progreso) {
   try {
     const userRef = doc(db, 'usuarios', userId);
@@ -126,11 +107,6 @@ async function actualizarEstadisticasUsuario(userId, progreso) {
   }
 }
 
-/**
- * Obtener progreso del usuario
- * @param {string} userId - ID del usuario
- * @param {number} limitResults - Límite de resultados (default: 10)
- */
 export async function obtenerProgreso(userId, limitResults = 10) {
   try {
     const progresoQuery = query(
@@ -157,16 +133,43 @@ export async function obtenerProgreso(userId, limitResults = 10) {
 // ==================== HISTORIAL DE CUENTOS ====================
 
 /**
- * Guardar un cuento generado
- * @param {string} userId - ID del usuario
- * @param {Object} cuentoData - Datos del cuento
+ * Limpiar datos antes de guardar en Firebase
+ * Elimina campos que empiezan/terminan con __ y otros caracteres prohibidos
  */
+function limpiarDatosFirebase(datos) {
+  if (!datos || typeof datos !== 'object') return datos;
+  
+  if (Array.isArray(datos)) {
+    return datos.map(item => limpiarDatosFirebase(item));
+  }
+  
+  const datosLimpios = {};
+  
+  for (const [key, value] of Object.entries(datos)) {
+    // Ignorar campos que empiezan/terminan con __
+    if (key.startsWith('__') || key.endsWith('__')) {
+      console.warn(`⚠️ Campo ignorado (inválido para Firebase): ${key}`);
+      continue;
+    }
+    
+    // Limpiar recursivamente si es objeto o array
+    if (value && typeof value === 'object') {
+      datosLimpios[key] = limpiarDatosFirebase(value);
+    } else {
+      datosLimpios[key] = value;
+    }
+  }
+  
+  return datosLimpios;
+}
+
 export async function guardarCuento(userId, cuentoData) {
   try {
     const cuentoRef = doc(collection(db, 'cuentos'));
     const timestamp = Timestamp.now();
     
-    await setDoc(cuentoRef, {
+    // Limpiar datos antes de guardar
+    const datosLimpios = limpiarDatosFirebase({
       userId,
       titulo: cuentoData.titulo,
       contenido: cuentoData.contenido,
@@ -177,18 +180,20 @@ export async function guardarCuento(userId, cuentoData) {
       fecha: timestamp,
     });
     
+    console.log('💾 Guardando cuento en Firebase...');
+    
+    await setDoc(cuentoRef, datosLimpios);
+    
+    console.log(`✅ Cuento guardado con ID: ${cuentoRef.id}`);
+    
     return { success: true, cuentoId: cuentoRef.id };
   } catch (error) {
-    console.error('Error al guardar cuento:', error);
+    console.error('❌ Error al guardar cuento:', error);
+    console.error('Detalles:', error.code, error.message);
     throw new Error('No se pudo guardar el cuento');
   }
 }
 
-/**
- * Obtener historial de cuentos del usuario
- * @param {string} userId - ID del usuario
- * @param {number} limitResults - Límite de resultados
- */
 export async function obtenerHistorialCuentos(userId, limitResults = 20) {
   try {
     const cuentosQuery = query(
@@ -212,10 +217,6 @@ export async function obtenerHistorialCuentos(userId, limitResults = 20) {
   }
 }
 
-/**
- * Obtener un cuento específico por ID
- * @param {string} cuentoId - ID del cuento
- */
 export async function obtenerCuento(cuentoId) {
   try {
     const cuentoRef = doc(db, 'cuentos', cuentoId);
